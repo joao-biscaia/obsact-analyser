@@ -4,7 +4,9 @@ package main
 import(
 	"fmt"
 	"os"
+	"strings"
 	"strconv"
+	"obsactAnalyser/internal/codegen"
 )
 %}
 
@@ -24,6 +26,7 @@ import(
 %token SET IF ELSE THEN AND ALERT SEND
 %token LIGAR DESLIGAR VERIFICAR
 %type <str> ACTION
+%type <str> ACTEXECUTE
 %nonassoc THEN
 %nonassoc ELSE
 %%
@@ -43,10 +46,14 @@ OBSACT: IF OBS THEN CMDS ELSE CMDS
 OBS: OBSERVATION OPLOGIC VAR
 OBS: OBSERVATION OPLOGIC VAR AND OBS
 VAR: NUM | BOOL
-ACT: ACTEXECUTE | ACTALERT
+ACT:
+	ACTEXECUTE{
+		yylex.(*Lexer).GeneratedCode.WriteString($1 + "\n")
+	}
+ | ACTALERT
 ACTEXECUTE:
 	ACTION NAMEDEVICE{
-		fmt.Printf("%s('%s')\n", $1, $2)
+		$$ = fmt.Sprintf("%s('%s')\n", $1, $2)
 	}
 ACTALERT: SEND ALERT '(' MSG ')' NAMEDEVICE
 ACTALERT: SEND ALERT '(' MSG ',' OBSERVATION ')' NAMEDEVICE
@@ -65,6 +72,7 @@ ACTION:
 type Lexer struct{
 	tokens []token
 	pos int
+	GeneratedCode strings.Builder
 }
 
 type token struct{
@@ -110,6 +118,8 @@ func main (){
 		},
 	}
 	yyParse(lex)
+	final := codegen.RuntimePy + "\n\n" + lex.GeneratedCode.String()
+	os.WriteFile("saida.py", []byte(final), 0644)
 }
 
 

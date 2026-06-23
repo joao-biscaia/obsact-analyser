@@ -28,12 +28,12 @@ state 2
 	.  error
 
 	ACTION  goto 14
+	ACTEXECUTE  goto 12
 	CMDS  goto 5
 	CMD  goto 6
 	ATTRIB  goto 7
 	OBSACT  goto 8
 	ACT  goto 9
-	ACTEXECUTE  goto 12
 	ACTALERT  goto 13
 
 state 3
@@ -41,7 +41,7 @@ state 3
 	DEVICES:  DEVICE.    (3)
 
 	DISPOSITIVO  shift 4
-	.  reduce 3 (src line 32)
+	.  reduce 3 (src line 35)
 
 	DEVICES  goto 19
 	DEVICE  goto 3
@@ -57,7 +57,7 @@ state 4
 state 5
 	PROGRAM:  DEVICES CMDS.    (1)
 
-	.  reduce 1 (src line 31)
+	.  reduce 1 (src line 34)
 
 
 state 6
@@ -71,19 +71,19 @@ state 6
 state 7
 	CMD:  ATTRIB.    (8)
 
-	.  reduce 8 (src line 36)
+	.  reduce 8 (src line 39)
 
 
 state 8
 	CMD:  OBSACT.    (9)
 
-	.  reduce 9 (src line 36)
+	.  reduce 9 (src line 39)
 
 
 state 9
 	CMD:  ACT.    (10)
 
-	.  reduce 10 (src line 36)
+	.  reduce 10 (src line 39)
 
 
 state 10
@@ -106,13 +106,13 @@ state 11
 state 12
 	ACT:  ACTEXECUTE.    (19)
 
-	.  reduce 19 (src line 46)
+	.  reduce 19 (src line 49)
 
 
 state 13
 	ACT:  ACTALERT.    (20)
 
-	.  reduce 20 (src line 46)
+	.  reduce 20 (src line 53)
 
 
 state 14
@@ -133,25 +133,25 @@ state 15
 state 16
 	ACTION:  LIGAR.    (24)
 
-	.  reduce 24 (src line 53)
+	.  reduce 24 (src line 60)
 
 
 state 17
 	ACTION:  DESLIGAR.    (25)
 
-	.  reduce 25 (src line 57)
+	.  reduce 25 (src line 64)
 
 
 state 18
 	ACTION:  VERIFICAR.    (26)
 
-	.  reduce 26 (src line 60)
+	.  reduce 26 (src line 67)
 
 
 state 19
 	DEVICES:  DEVICE DEVICES.    (2)
 
-	.  reduce 2 (src line 32)
+	.  reduce 2 (src line 35)
 
 
 state 20
@@ -172,15 +172,15 @@ state 21
 	LIGAR  shift 16
 	DESLIGAR  shift 17
 	VERIFICAR  shift 18
-	.  reduce 7 (src line 35)
+	.  reduce 7 (src line 38)
 
 	ACTION  goto 14
+	ACTEXECUTE  goto 12
 	CMDS  goto 28
 	CMD  goto 6
 	ATTRIB  goto 7
 	OBSACT  goto 8
 	ACT  goto 9
-	ACTEXECUTE  goto 12
 	ACTALERT  goto 13
 
 state 22
@@ -210,7 +210,7 @@ state 24
 state 25
 	ACTEXECUTE:  ACTION NAMEDEVICE.    (21)
 
-	.  reduce 21 (src line 47)
+	.  reduce 21 (src line 54)
 
 
 state 26
@@ -232,7 +232,7 @@ state 27
 state 28
 	CMDS:  CMD '.' CMDS.    (6)
 
-	.  reduce 6 (src line 35)
+	.  reduce 6 (src line 38)
 
 
 state 29
@@ -247,8 +247,8 @@ state 29
 	.  error
 
 	ACTION  goto 14
-	VAR  goto 34
 	ACTEXECUTE  goto 35
+	VAR  goto 34
 
 state 30
 	OBSACT:  IF OBS THEN.CMDS 
@@ -263,12 +263,12 @@ state 30
 	.  error
 
 	ACTION  goto 14
+	ACTEXECUTE  goto 12
 	CMDS  goto 38
 	CMD  goto 6
 	ATTRIB  goto 7
 	OBSACT  goto 8
 	ACT  goto 9
-	ACTEXECUTE  goto 12
 	ACTALERT  goto 13
 
 state 31
@@ -301,25 +301,25 @@ state 33
 state 34
 	ATTRIB:  SET OBSERVATION '=' VAR.    (11)
 
-	.  reduce 11 (src line 37)
+	.  reduce 11 (src line 40)
 
 
 state 35
 	ATTRIB:  SET OBSERVATION '=' ACTEXECUTE.    (12)
 
-	.  reduce 12 (src line 38)
+	.  reduce 12 (src line 41)
 
 
 state 36
 	VAR:  NUM.    (17)
 
-	.  reduce 17 (src line 45)
+	.  reduce 17 (src line 48)
 
 
 state 37
 	VAR:  BOOL.    (18)
 
-	.  reduce 18 (src line 45)
+	.  reduce 18 (src line 48)
 
 
 state 38
@@ -327,7 +327,7 @@ state 38
 	OBSACT:  IF OBS THEN CMDS.ELSE CMDS 
 
 	ELSE  shift 43
-	.  reduce 13 (src line 39)
+	.  reduce 13 (src line 42)
 
 
 state 39
@@ -335,7 +335,7 @@ state 39
 	OBS:  OBSERVATION OPLOGIC VAR.AND OBS 
 
 	AND  shift 44
-	.  reduce 15 (src line 43)
+	.  reduce 15 (src line 46)
 
 
 state 40
@@ -350,7 +350,7 @@ state 40
 state 41
 	DEVICE:  DISPOSITIVO ':' '{' NAMEDEVICE '}'.    (4)
 
-	.  reduce 4 (src line 33)
+	.  reduce 4 (src line 36)
 
 
 state 42
@@ -372,12 +372,12 @@ state 43
 	.  error
 
 	ACTION  goto 14
+	ACTEXECUTE  goto 12
 	CMDS  goto 48
 	CMD  goto 6
 	ATTRIB  goto 7
 	OBSACT  goto 8
 	ACT  goto 9
-	ACTEXECUTE  goto 12
 	ACTALERT  goto 13
 
 state 44
@@ -412,19 +412,19 @@ state 47
 state 48
 	OBSACT:  IF OBS THEN CMDS ELSE CMDS.    (14)
 
-	.  reduce 14 (src line 42)
+	.  reduce 14 (src line 45)
 
 
 state 49
 	OBS:  OBSERVATION OPLOGIC VAR AND OBS.    (16)
 
-	.  reduce 16 (src line 44)
+	.  reduce 16 (src line 47)
 
 
 state 50
 	ACTALERT:  SEND ALERT '(' MSG ')' NAMEDEVICE.    (22)
 
-	.  reduce 22 (src line 51)
+	.  reduce 22 (src line 58)
 
 
 state 51
@@ -437,7 +437,7 @@ state 51
 state 52
 	DEVICE:  DISPOSITIVO ':' '{' NAMEDEVICE ',' OBSERVATION '}'.    (5)
 
-	.  reduce 5 (src line 34)
+	.  reduce 5 (src line 37)
 
 
 state 53
@@ -450,7 +450,7 @@ state 53
 state 54
 	ACTALERT:  SEND ALERT '(' MSG ',' OBSERVATION ')' NAMEDEVICE.    (23)
 
-	.  reduce 23 (src line 52)
+	.  reduce 23 (src line 59)
 
 
 28 terminals, 14 nonterminals

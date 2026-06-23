@@ -9,3 +9,7 @@ def desligar(namedevice):
 def verificar(namedevice):
     print(namedevice + "verificado!")
     return 0
+
+
+ligar('lampada')
+

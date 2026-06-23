@@ -9,11 +9,13 @@ import __yyfmt__ "fmt"
 
 import (
 	"fmt"
+	"obsactAnalyser/internal/codegen"
 	"os"
 	"strconv"
+	"strings"
 )
 
-//line internal/parser/grammar.y:13
+//line internal/parser/grammar.y:15
 type yySymType struct {
 	yys int
 	str string
@@ -75,11 +77,12 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line internal/parser/grammar.y:63
+//line internal/parser/grammar.y:70
 
 type Lexer struct {
-	tokens []token
-	pos    int
+	tokens        []token
+	pos           int
+	GeneratedCode strings.Builder
 }
 
 type token struct {
@@ -125,6 +128,8 @@ func main() {
 		},
 	}
 	yyParse(lex)
+	final := codegen.RuntimePy + "\n\n" + lex.GeneratedCode.String()
+	os.WriteFile("saida.py", []byte(final), 0644)
 }
 
 //line yacctab:1
@@ -157,14 +162,14 @@ var yyPact = [...]int16{
 }
 
 var yyPgo = [...]int8{
-	0, 58, 57, 49, 0, 56, 55, 54, 52, 51,
-	2, 3, 1, 50,
+	0, 58, 3, 57, 49, 0, 56, 55, 54, 52,
+	51, 2, 1, 50,
 }
 
 var yyR1 = [...]int8{
-	0, 2, 3, 3, 5, 5, 4, 4, 6, 6,
-	6, 7, 7, 8, 8, 12, 12, 10, 10, 9,
-	9, 11, 13, 13, 1, 1, 1,
+	0, 3, 4, 4, 6, 6, 5, 5, 7, 7,
+	7, 8, 8, 9, 9, 12, 12, 11, 11, 10,
+	10, 2, 13, 13, 1, 1, 1,
 }
 
 var yyR2 = [...]int8{
@@ -174,11 +179,11 @@ var yyR2 = [...]int8{
 }
 
 var yyChk = [...]int16{
-	-32768, -2, -3, -5, 5, -4, -6, -7, -8, -9,
-	11, 12, -11, -13, -1, 17, 18, 19, 20, -3,
-	21, 25, 6, -12, 6, 4, 16, 22, -4, 26,
-	14, 10, 27, 4, -10, -11, 7, 9, -4, -10,
-	8, 23, 24, 13, 15, 28, 24, 6, -4, -12,
+	-32768, -3, -4, -6, 5, -5, -7, -8, -9, -10,
+	11, 12, -2, -13, -1, 17, 18, 19, 20, -4,
+	21, 25, 6, -12, 6, 4, 16, 22, -5, 26,
+	14, 10, 27, 4, -11, -2, 7, 9, -5, -11,
+	8, 23, 24, 13, 15, 28, 24, 6, -5, -12,
 	4, 6, 23, 28, 4,
 }
 
@@ -553,27 +558,33 @@ yydefault:
 	// dummy call; replaced with literal code
 	switch yynt {
 
+	case 19:
+		yyDollar = yyS[yypt-1 : yypt+1]
+//line internal/parser/grammar.y:50
+		{
+			yylex.(*Lexer).GeneratedCode.WriteString(yyDollar[1].str + "\n")
+		}
 	case 21:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line internal/parser/grammar.y:48
+//line internal/parser/grammar.y:55
 		{
-			fmt.Printf("%s('%s')\n", yyDollar[1].str, yyDollar[2].str)
+			yyVAL.str = fmt.Sprintf("%s('%s')\n", yyDollar[1].str, yyDollar[2].str)
 		}
 	case 24:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:54
+//line internal/parser/grammar.y:61
 		{
 			yyVAL.str = "ligar"
 		}
 	case 25:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:57
+//line internal/parser/grammar.y:64
 		{
 			yyVAL.str = "desligar"
 		}
 	case 26:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:60
+//line internal/parser/grammar.y:67
 		{
 			yyVAL.str = "verificar"
 		}
