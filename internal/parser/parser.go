@@ -77,7 +77,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line internal/parser/grammar.y:70
+//line internal/parser/grammar.y:101
 
 type Lexer struct {
 	tokens        []token
@@ -104,7 +104,6 @@ func (l *Lexer) Lex(lval *yySymType) int {
 	case NAMEDEVICE, OBSERVATION, MSG, BOOL, OPLOGIC:
 		lval.str = t.val
 	}
-	lval.str = t.val
 	return t.typ
 }
 
@@ -120,7 +119,15 @@ func main() {
 			{typ: int(':'), val: ":"},
 			{typ: int('{'), val: "{"},
 			{typ: NAMEDEVICE, val: "lampada"},
+			{typ: int(','), val: ","},
+			{typ: OBSERVATION, val: "potencia"},
 			{typ: int('}'), val: "}"},
+
+			{typ: SET, val: "set"},
+			{typ: OBSERVATION, val: "potencia"},
+			{typ: int('='), val: "="},
+			{typ: NUM, val: "100"},
+			{typ: int('.'), val: "."},
 
 			{typ: LIGAR, val: "ligar"},
 			{typ: NAMEDEVICE, val: "lampada"},
@@ -149,7 +156,7 @@ var yyAct = [...]int8{
 	20, 26, 28, 44, 36, 30, 37, 43, 36, 31,
 	37, 38, 40, 35, 39, 16, 17, 18, 51, 24,
 	47, 22, 4, 54, 48, 50, 49, 33, 25, 2,
-	13, 9, 8, 19, 7, 6, 3, 1, 14,
+	8, 6, 3, 19, 1, 13, 9, 7, 14,
 }
 
 var yyPact = [...]int16{
@@ -162,14 +169,14 @@ var yyPact = [...]int16{
 }
 
 var yyPgo = [...]int8{
-	0, 58, 3, 57, 49, 0, 56, 55, 54, 52,
-	51, 2, 1, 50,
+	0, 58, 3, 57, 2, 56, 55, 54, 49, 0,
+	52, 51, 50, 1,
 }
 
 var yyR1 = [...]int8{
-	0, 3, 4, 4, 6, 6, 5, 5, 7, 7,
-	7, 8, 8, 9, 9, 12, 12, 11, 11, 10,
-	10, 2, 13, 13, 1, 1, 1,
+	0, 7, 8, 8, 10, 10, 9, 9, 11, 11,
+	11, 3, 3, 12, 12, 13, 13, 4, 4, 5,
+	5, 2, 6, 6, 1, 1, 1,
 }
 
 var yyR2 = [...]int8{
@@ -179,11 +186,11 @@ var yyR2 = [...]int8{
 }
 
 var yyChk = [...]int16{
-	-32768, -3, -4, -6, 5, -5, -7, -8, -9, -10,
-	11, 12, -2, -13, -1, 17, 18, 19, 20, -4,
-	21, 25, 6, -12, 6, 4, 16, 22, -5, 26,
-	14, 10, 27, 4, -11, -2, 7, 9, -5, -11,
-	8, 23, 24, 13, 15, 28, 24, 6, -5, -12,
+	-32768, -7, -8, -10, 5, -9, -11, -3, -12, -5,
+	11, 12, -2, -6, -1, 17, 18, 19, 20, -8,
+	21, 25, 6, -13, 6, 4, 16, 22, -9, 26,
+	14, 10, 27, 4, -4, -2, 7, 9, -9, -4,
+	8, 23, 24, 13, 15, 28, 24, 6, -9, -13,
 	4, 6, 23, 28, 4,
 }
 
@@ -558,33 +565,88 @@ yydefault:
 	// dummy call; replaced with literal code
 	switch yynt {
 
-	case 19:
+	case 8:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:50
+//line internal/parser/grammar.y:44
 		{
 			yylex.(*Lexer).GeneratedCode.WriteString(yyDollar[1].str + "\n")
 		}
+	case 10:
+		yyDollar = yyS[yypt-1 : yypt+1]
+//line internal/parser/grammar.y:48
+		{
+			yylex.(*Lexer).GeneratedCode.WriteString(yyDollar[1].str + "\n")
+		}
+	case 11:
+		yyDollar = yyS[yypt-4 : yypt+1]
+//line internal/parser/grammar.y:52
+		{
+			yyVAL.str = fmt.Sprintf("%s = %s\n", yyDollar[2].str, yyDollar[4].str)
+		}
+	case 12:
+		yyDollar = yyS[yypt-4 : yypt+1]
+//line internal/parser/grammar.y:56
+		{
+			yyVAL.str = fmt.Sprintf("%s = %s\n", yyDollar[2].str, yyDollar[4].str)
+		}
+	case 17:
+		yyDollar = yyS[yypt-1 : yypt+1]
+//line internal/parser/grammar.y:66
+		{
+			yyVAL.str = strconv.Itoa(yyDollar[1].num)
+		}
+	case 18:
+		yyDollar = yyS[yypt-1 : yypt+1]
+//line internal/parser/grammar.y:69
+		{
+			yyVAL.str = yyDollar[1].str
+		}
+	case 19:
+		yyDollar = yyS[yypt-1 : yypt+1]
+//line internal/parser/grammar.y:73
+		{
+			yyVAL.str = yyDollar[1].str + "\n"
+		}
+	case 20:
+		yyDollar = yyS[yypt-1 : yypt+1]
+//line internal/parser/grammar.y:76
+		{
+			yyVAL.str = yyDollar[1].str + "\n"
+
+		}
 	case 21:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line internal/parser/grammar.y:55
+//line internal/parser/grammar.y:81
 		{
 			yyVAL.str = fmt.Sprintf("%s('%s')\n", yyDollar[1].str, yyDollar[2].str)
 		}
+	case 22:
+		yyDollar = yyS[yypt-6 : yypt+1]
+//line internal/parser/grammar.y:84
+		{
+			yyVAL.str = fmt.Sprintf("alert('%s', '%s')\n", yyDollar[6].str, yyDollar[4].str)
+		}
+	case 23:
+		yyDollar = yyS[yypt-8 : yypt+1]
+//line internal/parser/grammar.y:88
+		{
+			yyVAL.str = fmt.Sprintf("alert('%s', '%s', '%s')\n", yyDollar[6].str, yyDollar[4].str, yyDollar[8].str)
+		}
 	case 24:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:61
+//line internal/parser/grammar.y:92
 		{
 			yyVAL.str = "ligar"
 		}
 	case 25:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:64
+//line internal/parser/grammar.y:95
 		{
 			yyVAL.str = "desligar"
 		}
 	case 26:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:67
+//line internal/parser/grammar.y:98
 		{
 			yyVAL.str = "verificar"
 		}

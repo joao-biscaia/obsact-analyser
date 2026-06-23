@@ -27,6 +27,10 @@ import(
 %token LIGAR DESLIGAR VERIFICAR
 %type <str> ACTION
 %type <str> ACTEXECUTE
+%type <str> ATTRIB
+%type <str> VAR
+%type <str> ACT
+%type <str> ACTALERT
 %nonassoc THEN
 %nonassoc ELSE
 %%
@@ -36,27 +40,54 @@ DEVICES: DEVICE DEVICES | DEVICE
 DEVICE: DISPOSITIVO ':' '{' NAMEDEVICE '}'
 DEVICE: DISPOSITIVO ':' '{' NAMEDEVICE ',' OBSERVATION '}'
 CMDS: CMD '.' CMDS | CMD '.'
-CMD: ATTRIB | OBSACT | ACT
-ATTRIB: SET OBSERVATION '=' VAR
-ATTRIB: SET OBSERVATION '=' ACTEXECUTE
+CMD:
+	ATTRIB{
+		yylex.(*Lexer).GeneratedCode.WriteString($1 + "\n")
+	}
+ | OBSACT
+  | ACT{
+		yylex.(*Lexer).GeneratedCode.WriteString($1 + "\n")
+  }
+ATTRIB:
+	SET OBSERVATION '=' VAR{
+		$$ = fmt.Sprintf("%s = %s\n", $2, $4)
+	}
+ATTRIB:
+	SET OBSERVATION '=' ACTEXECUTE{
+		$$ = fmt.Sprintf("%s = %s\n", $2, $4)
+	}
 OBSACT:
 	IF OBS THEN CMDS
 
 OBSACT: IF OBS THEN CMDS ELSE CMDS
 OBS: OBSERVATION OPLOGIC VAR
 OBS: OBSERVATION OPLOGIC VAR AND OBS
-VAR: NUM | BOOL
+VAR:
+	NUM {
+		$$ = strconv.Itoa($1)
+	}
+	| BOOL{
+		$$ = $1
+	}
 ACT:
 	ACTEXECUTE{
-		yylex.(*Lexer).GeneratedCode.WriteString($1 + "\n")
+		$$ = $1 + "\n"
 	}
- | ACTALERT
+ | ACTALERT{
+ 		$$ = $1 + "\n"
+
+ }
 ACTEXECUTE:
 	ACTION NAMEDEVICE{
 		$$ = fmt.Sprintf("%s('%s')\n", $1, $2)
 	}
-ACTALERT: SEND ALERT '(' MSG ')' NAMEDEVICE
-ACTALERT: SEND ALERT '(' MSG ',' OBSERVATION ')' NAMEDEVICE
+ACTALERT: SEND ALERT '(' MSG ')' NAMEDEVICE{
+	$$ = fmt.Sprintf("alert('%s', '%s')\n", $6, $4)
+}
+ACTALERT:
+	SEND ALERT '(' MSG ',' OBSERVATION ')' NAMEDEVICE{
+		$$ = fmt.Sprintf("alert('%s', '%s', '%s')\n", $6, $4, $8)
+	}
 ACTION:
 	LIGAR{
 		$$ = "ligar"
@@ -94,7 +125,6 @@ func (l * Lexer) Lex(lval *yySymType) int{
             case NAMEDEVICE, OBSERVATION, MSG, BOOL, OPLOGIC:
                 lval.str = t.val
         }
-	lval.str = t.val
 	return t.typ
 }
 
@@ -110,7 +140,15 @@ func main (){
                             {typ: int(':'), val: ":"},
                             {typ: int('{'), val: "{"},
                             {typ: NAMEDEVICE, val: "lampada"},
+                            {typ: int(','), val: ","},
+                            {typ: OBSERVATION, val: "potencia"},
                             {typ: int('}'), val: "}"},
+
+			    {typ: SET, val: "set"},
+                            {typ: OBSERVATION, val: "potencia"},
+                            {typ: int('='), val: "="},
+                            {typ: NUM, val: "100"},
+                            {typ: int('.'), val: "."},
 
                             {typ: LIGAR, val: "ligar"},
                             {typ: NAMEDEVICE, val: "lampada"},
