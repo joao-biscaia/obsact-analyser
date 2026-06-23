@@ -1,5 +1,5 @@
 generate:
-	goyacc -o internal/parser/parser.go internal/parser/grammar.y
+	goyacc -o internal/parser/parser.go -v internal/parser/out.output internal/parser/grammar.y
 	rm -rf y.output
 
 run:

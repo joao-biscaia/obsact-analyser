@@ -1,0 +1,467 @@
+
+state 0
+	$accept: .PROGRAM $end 
+
+	DISPOSITIVO  shift 4
+	.  error
+
+	PROGRAM  goto 1
+	DEVICES  goto 2
+	DEVICE  goto 3
+
+state 1
+	$accept:  PROGRAM.$end 
+
+	$end  accept
+	.  error
+
+
+state 2
+	PROGRAM:  DEVICES.CMDS 
+
+	SET  shift 10
+	IF  shift 11
+	SEND  shift 15
+	LIGAR  shift 16
+	DESLIGAR  shift 17
+	VERIFICAR  shift 18
+	.  error
+
+	ACTION  goto 14
+	CMDS  goto 5
+	CMD  goto 6
+	ATTRIB  goto 7
+	OBSACT  goto 8
+	ACT  goto 9
+	ACTEXECUTE  goto 12
+	ACTALERT  goto 13
+
+state 3
+	DEVICES:  DEVICE.DEVICES 
+	DEVICES:  DEVICE.    (3)
+
+	DISPOSITIVO  shift 4
+	.  reduce 3 (src line 32)
+
+	DEVICES  goto 19
+	DEVICE  goto 3
+
+state 4
+	DEVICE:  DISPOSITIVO.':' '{' NAMEDEVICE '}' 
+	DEVICE:  DISPOSITIVO.':' '{' NAMEDEVICE ',' OBSERVATION '}' 
+
+	':'  shift 20
+	.  error
+
+
+state 5
+	PROGRAM:  DEVICES CMDS.    (1)
+
+	.  reduce 1 (src line 31)
+
+
+state 6
+	CMDS:  CMD.'.' CMDS 
+	CMDS:  CMD.'.' 
+
+	'.'  shift 21
+	.  error
+
+
+state 7
+	CMD:  ATTRIB.    (8)
+
+	.  reduce 8 (src line 36)
+
+
+state 8
+	CMD:  OBSACT.    (9)
+
+	.  reduce 9 (src line 36)
+
+
+state 9
+	CMD:  ACT.    (10)
+
+	.  reduce 10 (src line 36)
+
+
+state 10
+	ATTRIB:  SET.OBSERVATION '=' VAR 
+	ATTRIB:  SET.OBSERVATION '=' ACTEXECUTE 
+
+	OBSERVATION  shift 22
+	.  error
+
+
+state 11
+	OBSACT:  IF.OBS THEN CMDS 
+	OBSACT:  IF.OBS THEN CMDS ELSE CMDS 
+
+	OBSERVATION  shift 24
+	.  error
+
+	OBS  goto 23
+
+state 12
+	ACT:  ACTEXECUTE.    (19)
+
+	.  reduce 19 (src line 46)
+
+
+state 13
+	ACT:  ACTALERT.    (20)
+
+	.  reduce 20 (src line 46)
+
+
+state 14
+	ACTEXECUTE:  ACTION.NAMEDEVICE 
+
+	NAMEDEVICE  shift 25
+	.  error
+
+
+state 15
+	ACTALERT:  SEND.ALERT '(' MSG ')' NAMEDEVICE 
+	ACTALERT:  SEND.ALERT '(' MSG ',' OBSERVATION ')' NAMEDEVICE 
+
+	ALERT  shift 26
+	.  error
+
+
+state 16
+	ACTION:  LIGAR.    (24)
+
+	.  reduce 24 (src line 53)
+
+
+state 17
+	ACTION:  DESLIGAR.    (25)
+
+	.  reduce 25 (src line 57)
+
+
+state 18
+	ACTION:  VERIFICAR.    (26)
+
+	.  reduce 26 (src line 60)
+
+
+state 19
+	DEVICES:  DEVICE DEVICES.    (2)
+
+	.  reduce 2 (src line 32)
+
+
+state 20
+	DEVICE:  DISPOSITIVO ':'.'{' NAMEDEVICE '}' 
+	DEVICE:  DISPOSITIVO ':'.'{' NAMEDEVICE ',' OBSERVATION '}' 
+
+	'{'  shift 27
+	.  error
+
+
+state 21
+	CMDS:  CMD '.'.CMDS 
+	CMDS:  CMD '.'.    (7)
+
+	SET  shift 10
+	IF  shift 11
+	SEND  shift 15
+	LIGAR  shift 16
+	DESLIGAR  shift 17
+	VERIFICAR  shift 18
+	.  reduce 7 (src line 35)
+
+	ACTION  goto 14
+	CMDS  goto 28
+	CMD  goto 6
+	ATTRIB  goto 7
+	OBSACT  goto 8
+	ACT  goto 9
+	ACTEXECUTE  goto 12
+	ACTALERT  goto 13
+
+state 22
+	ATTRIB:  SET OBSERVATION.'=' VAR 
+	ATTRIB:  SET OBSERVATION.'=' ACTEXECUTE 
+
+	'='  shift 29
+	.  error
+
+
+state 23
+	OBSACT:  IF OBS.THEN CMDS 
+	OBSACT:  IF OBS.THEN CMDS ELSE CMDS 
+
+	THEN  shift 30
+	.  error
+
+
+state 24
+	OBS:  OBSERVATION.OPLOGIC VAR 
+	OBS:  OBSERVATION.OPLOGIC VAR AND OBS 
+
+	OPLOGIC  shift 31
+	.  error
+
+
+state 25
+	ACTEXECUTE:  ACTION NAMEDEVICE.    (21)
+
+	.  reduce 21 (src line 47)
+
+
+state 26
+	ACTALERT:  SEND ALERT.'(' MSG ')' NAMEDEVICE 
+	ACTALERT:  SEND ALERT.'(' MSG ',' OBSERVATION ')' NAMEDEVICE 
+
+	'('  shift 32
+	.  error
+
+
+state 27
+	DEVICE:  DISPOSITIVO ':' '{'.NAMEDEVICE '}' 
+	DEVICE:  DISPOSITIVO ':' '{'.NAMEDEVICE ',' OBSERVATION '}' 
+
+	NAMEDEVICE  shift 33
+	.  error
+
+
+state 28
+	CMDS:  CMD '.' CMDS.    (6)
+
+	.  reduce 6 (src line 35)
+
+
+state 29
+	ATTRIB:  SET OBSERVATION '='.VAR 
+	ATTRIB:  SET OBSERVATION '='.ACTEXECUTE 
+
+	NUM  shift 36
+	BOOL  shift 37
+	LIGAR  shift 16
+	DESLIGAR  shift 17
+	VERIFICAR  shift 18
+	.  error
+
+	ACTION  goto 14
+	VAR  goto 34
+	ACTEXECUTE  goto 35
+
+state 30
+	OBSACT:  IF OBS THEN.CMDS 
+	OBSACT:  IF OBS THEN.CMDS ELSE CMDS 
+
+	SET  shift 10
+	IF  shift 11
+	SEND  shift 15
+	LIGAR  shift 16
+	DESLIGAR  shift 17
+	VERIFICAR  shift 18
+	.  error
+
+	ACTION  goto 14
+	CMDS  goto 38
+	CMD  goto 6
+	ATTRIB  goto 7
+	OBSACT  goto 8
+	ACT  goto 9
+	ACTEXECUTE  goto 12
+	ACTALERT  goto 13
+
+state 31
+	OBS:  OBSERVATION OPLOGIC.VAR 
+	OBS:  OBSERVATION OPLOGIC.VAR AND OBS 
+
+	NUM  shift 36
+	BOOL  shift 37
+	.  error
+
+	VAR  goto 39
+
+state 32
+	ACTALERT:  SEND ALERT '('.MSG ')' NAMEDEVICE 
+	ACTALERT:  SEND ALERT '('.MSG ',' OBSERVATION ')' NAMEDEVICE 
+
+	MSG  shift 40
+	.  error
+
+
+state 33
+	DEVICE:  DISPOSITIVO ':' '{' NAMEDEVICE.'}' 
+	DEVICE:  DISPOSITIVO ':' '{' NAMEDEVICE.',' OBSERVATION '}' 
+
+	'}'  shift 41
+	','  shift 42
+	.  error
+
+
+state 34
+	ATTRIB:  SET OBSERVATION '=' VAR.    (11)
+
+	.  reduce 11 (src line 37)
+
+
+state 35
+	ATTRIB:  SET OBSERVATION '=' ACTEXECUTE.    (12)
+
+	.  reduce 12 (src line 38)
+
+
+state 36
+	VAR:  NUM.    (17)
+
+	.  reduce 17 (src line 45)
+
+
+state 37
+	VAR:  BOOL.    (18)
+
+	.  reduce 18 (src line 45)
+
+
+state 38
+	OBSACT:  IF OBS THEN CMDS.    (13)
+	OBSACT:  IF OBS THEN CMDS.ELSE CMDS 
+
+	ELSE  shift 43
+	.  reduce 13 (src line 39)
+
+
+state 39
+	OBS:  OBSERVATION OPLOGIC VAR.    (15)
+	OBS:  OBSERVATION OPLOGIC VAR.AND OBS 
+
+	AND  shift 44
+	.  reduce 15 (src line 43)
+
+
+state 40
+	ACTALERT:  SEND ALERT '(' MSG.')' NAMEDEVICE 
+	ACTALERT:  SEND ALERT '(' MSG.',' OBSERVATION ')' NAMEDEVICE 
+
+	','  shift 46
+	')'  shift 45
+	.  error
+
+
+state 41
+	DEVICE:  DISPOSITIVO ':' '{' NAMEDEVICE '}'.    (4)
+
+	.  reduce 4 (src line 33)
+
+
+state 42
+	DEVICE:  DISPOSITIVO ':' '{' NAMEDEVICE ','.OBSERVATION '}' 
+
+	OBSERVATION  shift 47
+	.  error
+
+
+state 43
+	OBSACT:  IF OBS THEN CMDS ELSE.CMDS 
+
+	SET  shift 10
+	IF  shift 11
+	SEND  shift 15
+	LIGAR  shift 16
+	DESLIGAR  shift 17
+	VERIFICAR  shift 18
+	.  error
+
+	ACTION  goto 14
+	CMDS  goto 48
+	CMD  goto 6
+	ATTRIB  goto 7
+	OBSACT  goto 8
+	ACT  goto 9
+	ACTEXECUTE  goto 12
+	ACTALERT  goto 13
+
+state 44
+	OBS:  OBSERVATION OPLOGIC VAR AND.OBS 
+
+	OBSERVATION  shift 24
+	.  error
+
+	OBS  goto 49
+
+state 45
+	ACTALERT:  SEND ALERT '(' MSG ')'.NAMEDEVICE 
+
+	NAMEDEVICE  shift 50
+	.  error
+
+
+state 46
+	ACTALERT:  SEND ALERT '(' MSG ','.OBSERVATION ')' NAMEDEVICE 
+
+	OBSERVATION  shift 51
+	.  error
+
+
+state 47
+	DEVICE:  DISPOSITIVO ':' '{' NAMEDEVICE ',' OBSERVATION.'}' 
+
+	'}'  shift 52
+	.  error
+
+
+state 48
+	OBSACT:  IF OBS THEN CMDS ELSE CMDS.    (14)
+
+	.  reduce 14 (src line 42)
+
+
+state 49
+	OBS:  OBSERVATION OPLOGIC VAR AND OBS.    (16)
+
+	.  reduce 16 (src line 44)
+
+
+state 50
+	ACTALERT:  SEND ALERT '(' MSG ')' NAMEDEVICE.    (22)
+
+	.  reduce 22 (src line 51)
+
+
+state 51
+	ACTALERT:  SEND ALERT '(' MSG ',' OBSERVATION.')' NAMEDEVICE 
+
+	')'  shift 53
+	.  error
+
+
+state 52
+	DEVICE:  DISPOSITIVO ':' '{' NAMEDEVICE ',' OBSERVATION '}'.    (5)
+
+	.  reduce 5 (src line 34)
+
+
+state 53
+	ACTALERT:  SEND ALERT '(' MSG ',' OBSERVATION ')'.NAMEDEVICE 
+
+	NAMEDEVICE  shift 54
+	.  error
+
+
+state 54
+	ACTALERT:  SEND ALERT '(' MSG ',' OBSERVATION ')' NAMEDEVICE.    (23)
+
+	.  reduce 23 (src line 52)
+
+
+28 terminals, 14 nonterminals
+27 grammar rules, 55/16000 states
+0 shift/reduce, 0 reduce/reduce conflicts reported
+63 working sets used
+memory: parser 51/240000
+3 extra closures
+59 shift entries, 1 exceptions
+20 goto entries
+23 entries saved by goto default
+Optimizer space used: output 59/240000
+59 table entries, 0 zero
+maximum spread: 28, maximum offset: 44
