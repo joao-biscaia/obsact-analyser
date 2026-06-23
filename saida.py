@@ -1,13 +1,13 @@
 def ligar(namedevice):
-    print(namedevice + "ligado!")
+    print(namedevice + " ligado!\n")
     return 1
 
 def desligar(namedevice):
-    print(namedevice + "desligado!")
+    print(namedevice + " desligado!\n")
     return 0
 
 def verificar(namedevice):
-    print(namedevice + "verificado!")
+    print(namedevice + "verificado!\n")
     return 0
 
 def alert(device, msg, val=None):
@@ -17,8 +17,14 @@ def alert(device, msg, val=None):
         print(f"[ALERT] {device}: {msg} - {val}")
 
 
-potencia = 100
-
-ligar('lampada')
-
+potenciaLampada = 100
+if umidade < 40:
+	alert('Monitor', 'Ar seco detectado')
+	if verificar('umidificador') == 0:
+		ligar('umidificador')
+	potenciaUmidificador = 100
+if movimento == True:
+	ligar('lampada')
+else:
+	desligar('lampada')
 

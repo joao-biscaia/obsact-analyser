@@ -32,13 +32,14 @@ const OPLOGIC = 57352
 const SET = 57353
 const IF = 57354
 const ELSE = 57355
-const THEN = 57356
-const AND = 57357
-const ALERT = 57358
-const SEND = 57359
-const LIGAR = 57360
-const DESLIGAR = 57361
-const VERIFICAR = 57362
+const ENDIF = 57356
+const THEN = 57357
+const AND = 57358
+const ALERT = 57359
+const SEND = 57360
+const LIGAR = 57361
+const DESLIGAR = 57362
+const VERIFICAR = 57363
 
 var yyToknames = [...]string{
 	"$end",
@@ -54,6 +55,7 @@ var yyToknames = [...]string{
 	"SET",
 	"IF",
 	"ELSE",
+	"ENDIF",
 	"THEN",
 	"AND",
 	"ALERT",
@@ -77,7 +79,17 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line internal/parser/grammar.y:101
+//line internal/parser/grammar.y:113
+
+func indent(s string) string {
+	linhas := strings.Split(strings.TrimRight(s, "\n"), "\n")
+	for i, l := range linhas {
+		if l != "" {
+			linhas[i] = "\t" + l
+		}
+	}
+	return strings.Join(linhas, "\n")
+}
 
 type Lexer struct {
 	tokens        []token
@@ -109,6 +121,9 @@ func (l *Lexer) Lex(lval *yySymType) int {
 
 func (l *Lexer) Error(s string) {
 	fmt.Fprintln(os.Stderr, "erro de sintaxe", s)
+	if l.pos < len(l.tokens) {
+		fmt.Printf("token atual: %+v, posição = %d\n", l.tokens[l.pos], l.pos)
+	}
 }
 
 func main() {
@@ -116,22 +131,109 @@ func main() {
 	lex := &Lexer{
 		tokens: []token{
 			{typ: DISPOSITIVO, val: "dispositivo"},
-			{typ: int(':'), val: ":"},
-			{typ: int('{'), val: "{"},
-			{typ: NAMEDEVICE, val: "lampada"},
-			{typ: int(','), val: ","},
-			{typ: OBSERVATION, val: "potencia"},
-			{typ: int('}'), val: "}"},
+			{typ: int(':'), val: ":"}, {typ: int('{'), val: "{"},
+			{typ: NAMEDEVICE, val: "celular"}, {typ: int(','), val: ","},
+			{typ: OBSERVATION, val: "movimento"}, {typ: int('}'), val: "}"},
 
+			// dispositivo:{higrometro,umidade}
+			{typ: DISPOSITIVO, val: "dispositivo"},
+			{typ: int(':'), val: ":"}, {typ: int('{'), val: "{"},
+			{typ: NAMEDEVICE, val: "higrometro"}, {typ: int(','), val: ","},
+			{typ: OBSERVATION, val: "umidade"}, {typ: int('}'), val: "}"},
+
+			// dispositivo:{lampada,potenciaLampada}
+			{typ: DISPOSITIVO, val: "dispositivo"},
+			{typ: int(':'), val: ":"}, {typ: int('{'), val: "{"},
+			{typ: NAMEDEVICE, val: "lampada"}, {typ: int(','), val: ","},
+			{typ: OBSERVATION, val: "potenciaLampada"}, {typ: int('}'), val: "}"},
+
+			// dispositivo:{umidificador,potenciaUmidificador}
+			{typ: DISPOSITIVO, val: "dispositivo"},
+			{typ: int(':'), val: ":"}, {typ: int('{'), val: "{"},
+			{typ: NAMEDEVICE, val: "umidificador"}, {typ: int(','), val: ","},
+			{typ: OBSERVATION, val: "potenciaUmidificador"}, {typ: int('}'), val: "}"},
+
+			// dispositivo:{Monitor}
+			{typ: DISPOSITIVO, val: "dispositivo"},
+			{typ: int(':'), val: ":"}, {typ: int('{'), val: "{"},
+			{typ: NAMEDEVICE, val: "Monitor"}, {typ: int('}'), val: "}"},
+
+			// set potenciaLampada = 100.   (traduzido da linha "set {lampada,potenciaLampada}=100")
 			{typ: SET, val: "set"},
-			{typ: OBSERVATION, val: "potencia"},
+			{typ: OBSERVATION, val: "potenciaLampada"},
 			{typ: int('='), val: "="},
 			{typ: NUM, val: "100"},
 			{typ: int('.'), val: "."},
 
+			// se umidade < 40 entao
+			{typ: IF, val: "if"},
+			{typ: OBSERVATION, val: "umidade"},
+			{typ: OPLOGIC, val: "<"},
+			{typ: NUM, val: "40"},
+			{typ: THEN, val: "then"},
+
+			// enviar alerta ("Ar seco detectado") Monitor.   (parênteses adicionados p/ casar a regra)
+			{typ: SEND, val: "send"},
+			{typ: ALERT, val: "alert"},
+			{typ: int('('), val: "("},
+			{typ: MSG, val: "Ar seco detectado"},
+			{typ: int(')'), val: ")"},
+			{typ: NAMEDEVICE, val: "Monitor"},
+			{typ: int('.'), val: "."},
+
+			// se verificar(umidificador) == 0 entao   (IF aninhado dentro do umidade)
+			{typ: IF, val: "if"},
+			{typ: VERIFICAR, val: "verificar"},
+			{typ: int('('), val: "("},
+			{typ: NAMEDEVICE, val: "umidificador"},
+			{typ: int(')'), val: ")"},
+			{typ: OPLOGIC, val: "=="},
+			{typ: NUM, val: "0"},
+			{typ: THEN, val: "then"},
+
+			// ligar(umidificador).
 			{typ: LIGAR, val: "ligar"},
+			{typ: int('('), val: "("},
+			{typ: NAMEDEVICE, val: "umidificador"},
+			{typ: int(')'), val: ")"},
+			{typ: int('.'), val: "."},
+
+			{typ: ENDIF, val: "ENDIF"}, // fecha o IF interno (verificar)
+
+			{typ: int('.'), val: "."},
+			// set potenciaUmidificador = 100.
+			{typ: SET, val: "set"},
+			{typ: OBSERVATION, val: "potenciaUmidificador"},
+			{typ: int('='), val: "="},
+			{typ: NUM, val: "100"},
+			{typ: int('.'), val: "."},
+
+			{typ: ENDIF, val: "ENDIF"}, // fecha o IF externo (umidade)
+			{typ: int('.'), val: "."},  // ponto que fecha o CMD do IF externo na sequência
+
+			// se movimento == True entao ligar(lampada) senao desligar(lampada).
+			{typ: IF, val: "if"},
+			{typ: OBSERVATION, val: "movimento"},
+			{typ: OPLOGIC, val: "=="},
+			{typ: BOOL, val: "True"},
+			{typ: THEN, val: "then"},
+
+			{typ: LIGAR, val: "ligar"},
+			{typ: int('('), val: "("},
 			{typ: NAMEDEVICE, val: "lampada"},
-			{typ: int('.'), val: "}"},
+			{typ: int(')'), val: ")"},
+			{typ: int('.'), val: "."}, // ponto fecha o CMDS do then
+
+			{typ: ELSE, val: "else"},
+
+			{typ: DESLIGAR, val: "desligar"},
+			{typ: int('('), val: "("},
+			{typ: NAMEDEVICE, val: "lampada"},
+			{typ: int(')'), val: ")"},
+			{typ: int('.'), val: "."}, // ponto fecha o CMDS do else
+
+			{typ: ENDIF, val: "ENDIF"},
+			{typ: int('.'), val: "."},
 		},
 	}
 	yyParse(lex)
@@ -148,59 +250,64 @@ var yyExca = [...]int8{
 
 const yyPrivate = 57344
 
-const yyLast = 59
+const yyLast = 71
 
 var yyAct = [...]int8{
-	5, 23, 34, 12, 46, 53, 32, 29, 45, 10,
-	11, 41, 42, 52, 21, 15, 16, 17, 18, 27,
-	20, 26, 28, 44, 36, 30, 37, 43, 36, 31,
-	37, 38, 40, 35, 39, 16, 17, 18, 51, 24,
-	47, 22, 4, 54, 48, 50, 49, 33, 25, 2,
-	8, 6, 3, 19, 1, 13, 9, 7, 14,
+	12, 25, 5, 23, 24, 52, 60, 44, 34, 51,
+	38, 30, 26, 27, 28, 21, 29, 46, 47, 58,
+	32, 20, 10, 11, 33, 31, 16, 17, 18, 15,
+	16, 17, 18, 50, 35, 41, 40, 26, 42, 49,
+	48, 43, 59, 28, 36, 29, 45, 57, 53, 22,
+	4, 26, 54, 61, 55, 16, 17, 18, 56, 39,
+	37, 2, 3, 1, 13, 19, 8, 7, 9, 6,
+	14,
 }
 
 var yyPact = [...]int16{
-	37, -32768, -2, 37, -1, -32768, -11, -32768, -32768, -32768,
-	35, 33, -32768, -32768, 44, 5, -32768, -32768, -32768, -32768,
-	-3, -2, -19, 11, 19, -32768, -21, 43, -32768, 17,
-	-2, 21, 24, -12, -32768, -32768, -32768, -32768, 14, 8,
-	-20, -32768, 34, -2, 33, 41, 32, -10, -32768, -32768,
-	-32768, -23, -32768, 39, -32768,
+	45, -32768, 11, 45, -1, -32768, -11, -32768, -32768, -32768,
+	43, 7, -32768, -32768, -17, 8, -32768, -32768, -32768, -32768,
+	-3, 11, -19, 19, 34, -32768, -32768, -32768, -32768, -32768,
+	56, -18, 55, -32768, 36, 11, 7, -22, 38, -7,
+	-32768, -32768, 26, 17, -32768, -20, -32768, 42, -32768, 11,
+	7, 54, 41, -5, 28, -32768, -32768, -23, -32768, -32768,
+	49, -32768,
 }
 
 var yyPgo = [...]int8{
-	0, 58, 3, 57, 2, 56, 55, 54, 49, 0,
-	52, 51, 50, 1,
+	0, 70, 69, 2, 68, 67, 66, 0, 64, 3,
+	1, 4, 63, 61, 62,
 }
 
 var yyR1 = [...]int8{
-	0, 7, 8, 8, 10, 10, 9, 9, 11, 11,
-	11, 3, 3, 12, 12, 13, 13, 4, 4, 5,
-	5, 2, 6, 6, 1, 1, 1,
+	0, 12, 13, 13, 14, 14, 3, 3, 2, 2,
+	2, 5, 5, 6, 6, 9, 9, 11, 11, 11,
+	10, 10, 4, 4, 7, 8, 8, 1, 1, 1,
 }
 
 var yyR2 = [...]int8{
 	0, 2, 2, 1, 5, 7, 3, 2, 1, 1,
-	1, 4, 4, 4, 6, 3, 5, 1, 1, 1,
-	1, 2, 6, 8, 1, 1, 1,
+	1, 4, 4, 5, 7, 3, 5, 1, 1, 1,
+	1, 1, 1, 1, 4, 6, 8, 1, 1, 1,
 }
 
 var yyChk = [...]int16{
-	-32768, -7, -8, -10, 5, -9, -11, -3, -12, -5,
-	11, 12, -2, -6, -1, 17, 18, 19, 20, -8,
-	21, 25, 6, -13, 6, 4, 16, 22, -9, 26,
-	14, 10, 27, 4, -4, -2, 7, 9, -9, -4,
-	8, 23, 24, 13, 15, 28, 24, 6, -9, -13,
-	4, 6, 23, 28, 4,
+	-32768, -12, -13, -14, 5, -3, -2, -5, -6, -4,
+	11, 12, -7, -8, -1, 18, 19, 20, 21, -13,
+	22, 26, 6, -9, -11, -10, -7, 6, 7, 9,
+	28, 17, 23, -3, 27, 15, 10, 4, 28, 4,
+	-10, -7, -3, -11, 29, 8, 24, 25, 14, 13,
+	16, 29, 25, 6, -3, -9, 4, 6, 24, 14,
+	29, 4,
 }
 
 var yyDef = [...]int8{
 	0, -2, 0, 3, 0, 1, 0, 8, 9, 10,
-	0, 0, 19, 20, 0, 0, 24, 25, 26, 2,
-	0, 7, 0, 0, 0, 21, 0, 0, 6, 0,
-	0, 0, 0, 0, 11, 12, 17, 18, 13, 15,
-	0, 4, 0, 0, 0, 0, 0, 0, 14, 16,
-	22, 0, 5, 0, 23,
+	0, 0, 22, 23, 0, 0, 27, 28, 29, 2,
+	0, 7, 0, 0, 0, 17, 18, 19, 20, 21,
+	0, 0, 0, 6, 0, 0, 0, 0, 0, 0,
+	11, 12, 0, 15, 24, 0, 4, 0, 13, 0,
+	0, 0, 0, 0, 0, 16, 25, 0, 5, 14,
+	0, 26,
 }
 
 var yyTok1 = [...]int8{
@@ -208,20 +315,20 @@ var yyTok1 = [...]int8{
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	27, 28, 3, 3, 24, 3, 25, 3, 3, 3,
-	3, 3, 3, 3, 3, 3, 3, 3, 21, 3,
-	3, 26, 3, 3, 3, 3, 3, 3, 3, 3,
+	28, 29, 3, 3, 25, 3, 26, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 22, 3,
+	3, 27, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	3, 3, 3, 22, 3, 23,
+	3, 3, 3, 23, 3, 24,
 }
 
 var yyTok2 = [...]int8{
 	2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-	12, 13, 14, 15, 16, 17, 18, 19, 20,
+	12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
 }
 
 var yyTok3 = [...]int8{
@@ -565,88 +672,123 @@ yydefault:
 	// dummy call; replaced with literal code
 	switch yynt {
 
-	case 8:
-		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:44
+	case 1:
+		yyDollar = yyS[yypt-2 : yypt+1]
+//line internal/parser/grammar.y:35
 		{
-			yylex.(*Lexer).GeneratedCode.WriteString(yyDollar[1].str + "\n")
+			yylex.(*Lexer).GeneratedCode.WriteString(yyDollar[2].str + "\n")
 		}
-	case 10:
-		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:48
+	case 6:
+		yyDollar = yyS[yypt-3 : yypt+1]
+//line internal/parser/grammar.y:42
 		{
-			yylex.(*Lexer).GeneratedCode.WriteString(yyDollar[1].str + "\n")
+			yyVAL.str = yyDollar[1].str + yyDollar[3].str
 		}
-	case 11:
-		yyDollar = yyS[yypt-4 : yypt+1]
-//line internal/parser/grammar.y:52
-		{
-			yyVAL.str = fmt.Sprintf("%s = %s\n", yyDollar[2].str, yyDollar[4].str)
-		}
-	case 12:
-		yyDollar = yyS[yypt-4 : yypt+1]
-//line internal/parser/grammar.y:56
-		{
-			yyVAL.str = fmt.Sprintf("%s = %s\n", yyDollar[2].str, yyDollar[4].str)
-		}
-	case 17:
-		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:66
-		{
-			yyVAL.str = strconv.Itoa(yyDollar[1].num)
-		}
-	case 18:
-		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:69
+	case 7:
+		yyDollar = yyS[yypt-2 : yypt+1]
+//line internal/parser/grammar.y:43
 		{
 			yyVAL.str = yyDollar[1].str
 		}
-	case 19:
+	case 8:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:73
+//line internal/parser/grammar.y:45
 		{
 			yyVAL.str = yyDollar[1].str + "\n"
+		}
+	case 9:
+		yyDollar = yyS[yypt-1 : yypt+1]
+//line internal/parser/grammar.y:48
+		{
+			yyVAL.str = yyDollar[1].str + "\n"
+		}
+	case 10:
+		yyDollar = yyS[yypt-1 : yypt+1]
+//line internal/parser/grammar.y:51
+		{
+			yyVAL.str = yyDollar[1].str + "\n"
+		}
+	case 11:
+		yyDollar = yyS[yypt-4 : yypt+1]
+//line internal/parser/grammar.y:55
+		{
+			yyVAL.str = fmt.Sprintf("%s = %s", yyDollar[2].str, yyDollar[4].str)
+		}
+	case 12:
+		yyDollar = yyS[yypt-4 : yypt+1]
+//line internal/parser/grammar.y:59
+		{
+			yyVAL.str = fmt.Sprintf("%s = %s", yyDollar[2].str, yyDollar[4].str)
+		}
+	case 13:
+		yyDollar = yyS[yypt-5 : yypt+1]
+//line internal/parser/grammar.y:63
+		{
+			yyVAL.str = fmt.Sprintf("if %s:\n%s", yyDollar[2].str, indent(yyDollar[4].str))
+		}
+	case 14:
+		yyDollar = yyS[yypt-7 : yypt+1]
+//line internal/parser/grammar.y:68
+		{
+			yyVAL.str = fmt.Sprintf("if %s:\n%s\nelse:\n%s", yyDollar[2].str, indent(yyDollar[4].str), indent(yyDollar[6].str))
+		}
+	case 15:
+		yyDollar = yyS[yypt-3 : yypt+1]
+//line internal/parser/grammar.y:72
+		{
+			yyVAL.str = fmt.Sprintf("%s %s %s", yyDollar[1].str, yyDollar[2].str, yyDollar[3].str)
+		}
+	case 16:
+		yyDollar = yyS[yypt-5 : yypt+1]
+//line internal/parser/grammar.y:76
+		{
+			yyVAL.str = fmt.Sprintf("%s %s %s and %s", yyDollar[1].str, yyDollar[2].str, yyDollar[3].str, yyDollar[5].str)
 		}
 	case 20:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:76
+//line internal/parser/grammar.y:83
 		{
-			yyVAL.str = yyDollar[1].str + "\n"
-
+			yyVAL.str = strconv.Itoa(yyDollar[1].num)
 		}
 	case 21:
-		yyDollar = yyS[yypt-2 : yypt+1]
-//line internal/parser/grammar.y:81
+		yyDollar = yyS[yypt-1 : yypt+1]
+//line internal/parser/grammar.y:86
 		{
-			yyVAL.str = fmt.Sprintf("%s('%s')\n", yyDollar[1].str, yyDollar[2].str)
-		}
-	case 22:
-		yyDollar = yyS[yypt-6 : yypt+1]
-//line internal/parser/grammar.y:84
-		{
-			yyVAL.str = fmt.Sprintf("alert('%s', '%s')\n", yyDollar[6].str, yyDollar[4].str)
-		}
-	case 23:
-		yyDollar = yyS[yypt-8 : yypt+1]
-//line internal/parser/grammar.y:88
-		{
-			yyVAL.str = fmt.Sprintf("alert('%s', '%s', '%s')\n", yyDollar[6].str, yyDollar[4].str, yyDollar[8].str)
+			yyVAL.str = yyDollar[1].str
 		}
 	case 24:
+		yyDollar = yyS[yypt-4 : yypt+1]
+//line internal/parser/grammar.y:93
+		{
+			yyVAL.str = fmt.Sprintf("%s('%s')", yyDollar[1].str, yyDollar[3].str)
+		}
+	case 25:
+		yyDollar = yyS[yypt-6 : yypt+1]
+//line internal/parser/grammar.y:96
+		{
+			yyVAL.str = fmt.Sprintf("alert('%s', '%s')", yyDollar[6].str, yyDollar[4].str)
+		}
+	case 26:
+		yyDollar = yyS[yypt-8 : yypt+1]
+//line internal/parser/grammar.y:100
+		{
+			yyVAL.str = fmt.Sprintf("alert('%s', '%s', '%s')", yyDollar[6].str, yyDollar[4].str, yyDollar[8].str)
+		}
+	case 27:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:92
+//line internal/parser/grammar.y:104
 		{
 			yyVAL.str = "ligar"
 		}
-	case 25:
+	case 28:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:95
+//line internal/parser/grammar.y:107
 		{
 			yyVAL.str = "desligar"
 		}
-	case 26:
+	case 29:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:98
+//line internal/parser/grammar.y:110
 		{
 			yyVAL.str = "verificar"
 		}

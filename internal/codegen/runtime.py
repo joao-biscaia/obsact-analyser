@@ -1,13 +1,13 @@
 def ligar(namedevice):
-    print(namedevice + "ligado!")
+    print(namedevice + " ligado!\n")
     return 1
 
 def desligar(namedevice):
-    print(namedevice + "desligado!")
+    print(namedevice + " desligado!\n")
     return 0
 
 def verificar(namedevice):
-    print(namedevice + "verificado!")
+    print(namedevice + "verificado!\n")
     return 0
 
 def alert(device, msg, val=None):
