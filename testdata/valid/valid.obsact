@@ -1,2 +1,2 @@
-dispositivo : { lampada }
-ligar lampada
+dispositivo: { lampada }
+ligar (lampada).

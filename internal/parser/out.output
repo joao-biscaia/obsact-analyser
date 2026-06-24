@@ -41,7 +41,7 @@ state 3
 	DEVICES:  DEVICE.    (5)
 
 	DISPOSITIVO  shift 4
-	.  reduce 5 (src line 48)
+	.  reduce 5 (src line 47)
 
 	DEVICE  goto 3
 	DEVICES  goto 19
@@ -57,7 +57,7 @@ state 4
 state 5
 	PROGRAM:  DEVICES CMDS.    (1)
 
-	.  reduce 1 (src line 33)
+	.  reduce 1 (src line 32)
 
 
 state 6
@@ -71,19 +71,19 @@ state 6
 state 7
 	CMD:  ATTRIB.    (8)
 
-	.  reduce 8 (src line 53)
+	.  reduce 8 (src line 52)
 
 
 state 8
 	CMD:  OBSACT.    (9)
 
-	.  reduce 9 (src line 57)
+	.  reduce 9 (src line 56)
 
 
 state 9
 	CMD:  ACT.    (10)
 
-	.  reduce 10 (src line 60)
+	.  reduce 10 (src line 59)
 
 
 state 10
@@ -115,13 +115,13 @@ state 11
 state 12
 	ACT:  ACTEXECUTE.    (22)
 
-	.  reduce 22 (src line 98)
+	.  reduce 22 (src line 97)
 
 
 state 13
 	ACT:  ACTALERT.    (23)
 
-	.  reduce 23 (src line 100)
+	.  reduce 23 (src line 99)
 
 
 state 14
@@ -142,25 +142,25 @@ state 15
 state 16
 	ACTION:  LIGAR.    (27)
 
-	.  reduce 27 (src line 112)
+	.  reduce 27 (src line 111)
 
 
 state 17
 	ACTION:  DESLIGAR.    (28)
 
-	.  reduce 28 (src line 116)
+	.  reduce 28 (src line 115)
 
 
 state 18
 	ACTION:  VERIFICAR.    (29)
 
-	.  reduce 29 (src line 119)
+	.  reduce 29 (src line 118)
 
 
 state 19
 	DEVICES:  DEVICE DEVICES.    (4)
 
-	.  reduce 4 (src line 46)
+	.  reduce 4 (src line 45)
 
 
 state 20
@@ -181,7 +181,7 @@ state 21
 	LIGAR  shift 16
 	DESLIGAR  shift 17
 	VERIFICAR  shift 18
-	.  reduce 7 (src line 52)
+	.  reduce 7 (src line 51)
 
 	ACTION  goto 14
 	CMD  goto 6
@@ -219,31 +219,31 @@ state 24
 state 25
 	EXPR:  VAR.    (17)
 
-	.  reduce 17 (src line 88)
+	.  reduce 17 (src line 87)
 
 
 state 26
 	EXPR:  ACTEXECUTE.    (18)
 
-	.  reduce 18 (src line 89)
+	.  reduce 18 (src line 88)
 
 
 state 27
 	EXPR:  IDENT.    (19)
 
-	.  reduce 19 (src line 90)
+	.  reduce 19 (src line 89)
 
 
 state 28
 	VAR:  NUM.    (20)
 
-	.  reduce 20 (src line 91)
+	.  reduce 20 (src line 90)
 
 
 state 29
 	VAR:  BOOL.    (21)
 
-	.  reduce 21 (src line 95)
+	.  reduce 21 (src line 94)
 
 
 state 30
@@ -272,7 +272,7 @@ state 32
 state 33
 	CMDS:  CMD '.' CMDS.    (6)
 
-	.  reduce 6 (src line 50)
+	.  reduce 6 (src line 49)
 
 
 state 34
@@ -355,13 +355,13 @@ state 39
 state 40
 	ATTRIB:  SET IDENT '=' VAR.    (11)
 
-	.  reduce 11 (src line 63)
+	.  reduce 11 (src line 62)
 
 
 state 41
 	ATTRIB:  SET IDENT '=' ACTEXECUTE.    (12)
 
-	.  reduce 12 (src line 67)
+	.  reduce 12 (src line 66)
 
 
 state 42
@@ -378,13 +378,13 @@ state 43
 	OBS:  EXPR OPLOGIC EXPR.AND OBS 
 
 	AND  shift 50
-	.  reduce 15 (src line 80)
+	.  reduce 15 (src line 79)
 
 
 state 44
 	ACTEXECUTE:  ACTION '(' IDENT ')'.    (24)
 
-	.  reduce 24 (src line 101)
+	.  reduce 24 (src line 100)
 
 
 state 45
@@ -399,7 +399,7 @@ state 45
 state 46
 	DEVICE:  DISPOSITIVO ':' '{' IDENT '}'.    (2)
 
-	.  reduce 2 (src line 37)
+	.  reduce 2 (src line 36)
 
 
 state 47
@@ -412,7 +412,7 @@ state 47
 state 48
 	OBSACT:  IF OBS THEN CMDS ENDIF.    (13)
 
-	.  reduce 13 (src line 71)
+	.  reduce 13 (src line 70)
 
 
 state 49
@@ -483,13 +483,13 @@ state 54
 state 55
 	OBS:  EXPR OPLOGIC EXPR AND OBS.    (16)
 
-	.  reduce 16 (src line 84)
+	.  reduce 16 (src line 83)
 
 
 state 56
 	ACTALERT:  SEND ALERT '(' MSG ')' IDENT.    (25)
 
-	.  reduce 25 (src line 105)
+	.  reduce 25 (src line 104)
 
 
 state 57
@@ -502,13 +502,13 @@ state 57
 state 58
 	DEVICE:  DISPOSITIVO ':' '{' IDENT ',' IDENT '}'.    (3)
 
-	.  reduce 3 (src line 41)
+	.  reduce 3 (src line 40)
 
 
 state 59
 	OBSACT:  IF OBS THEN CMDS ELSE CMDS ENDIF.    (14)
 
-	.  reduce 14 (src line 76)
+	.  reduce 14 (src line 75)
 
 
 state 60
@@ -521,7 +521,7 @@ state 60
 state 61
 	ACTALERT:  SEND ALERT '(' MSG ',' IDENT ')' IDENT.    (26)
 
-	.  reduce 26 (src line 108)
+	.  reduce 26 (src line 107)
 
 
 28 terminals, 15 nonterminals

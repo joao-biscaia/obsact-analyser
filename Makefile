@@ -3,4 +3,4 @@ generate:
 	rm -rf y.output
 
 run:
-	go run ./internal/parser/
+	go run ./cmd/obsact/ testdata/valid/valid.obsact

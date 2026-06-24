@@ -1,12 +1,11 @@
 %{
-package main
+package parser
 
 import(
 	"fmt"
 	"os"
 	"strings"
 	"strconv"
-	"obsactAnalyser/internal/codegen"
 )
 %}
 
@@ -131,7 +130,7 @@ func indent(s string) string{
 }
 
 type Lexer struct{
-	tokens []token
+	Tokens chan token
 	pos int
 	GeneratedCode strings.Builder
 }
@@ -144,144 +143,23 @@ type token struct{
 
 
 func (l * Lexer) Lex(lval *yySymType) int{
-	if l.pos >= len(l.tokens){
+	t, ok := <-l.Tokens
+	if !ok{
 		return 0
 	}
-	t := l.tokens[l.pos]
-	l.pos++
 	switch t.typ {
             case NUM:
                 n, _ := strconv.Atoi(t.val)
                 lval.num = n
             case IDENT, MSG, BOOL, OPLOGIC:
                 lval.str = t.val
-        }
-	return t.typ
+            }
+            return t.typ
 }
 
 func (l *Lexer) Error(s string){
 	fmt.Fprintln(os.Stderr, "erro de sintaxe", s)
-	if l.pos < len(l.tokens) {
-        		fmt.Printf("token atual: %+v, posição = %d\n", l.tokens[l.pos], l.pos)
-        	}
 }
-
-func main (){
-
-	lex := &Lexer{
-		tokens: []token{
-			{typ: DISPOSITIVO, val: "dispositivo"},
-			{typ: int(':'), val: ":"}, {typ: int('{'), val: "{"},
-			{typ: IDENT, val: "celular"}, {typ: int(','), val: ","},
-			{typ: IDENT, val: "movimento"}, {typ: int('}'), val: "}"},
-
-			// dispositivo:{higrometro,umidade}
-			{typ: DISPOSITIVO, val: "dispositivo"},
-			{typ: int(':'), val: ":"}, {typ: int('{'), val: "{"},
-			{typ: IDENT, val: "higrometro"}, {typ: int(','), val: ","},
-			{typ: IDENT, val: "umidade"}, {typ: int('}'), val: "}"},
-
-			// dispositivo:{lampada,potenciaLampada}
-			{typ: DISPOSITIVO, val: "dispositivo"},
-			{typ: int(':'), val: ":"}, {typ: int('{'), val: "{"},
-			{typ: IDENT, val: "lampada"}, {typ: int(','), val: ","},
-			{typ: IDENT, val: "potenciaLampada"}, {typ: int('}'), val: "}"},
-
-			// dispositivo:{umidificador,potenciaUmidificador}
-			{typ: DISPOSITIVO, val: "dispositivo"},
-			{typ: int(':'), val: ":"}, {typ: int('{'), val: "{"},
-			{typ: IDENT, val: "umidificador"}, {typ: int(','), val: ","},
-			{typ: IDENT, val: "potenciaUmidificador"}, {typ: int('}'), val: "}"},
-
-			// dispositivo:{Monitor}
-			{typ: DISPOSITIVO, val: "dispositivo"},
-			{typ: int(':'), val: ":"}, {typ: int('{'), val: "{"},
-			{typ: IDENT, val: "Monitor"}, {typ: int('}'), val: "}"},
-
-			// set potenciaLampada = 100.   (traduzido da linha "set {lampada,potenciaLampada}=100")
-			{typ: SET, val: "set"},
-			{typ: IDENT, val: "potenciaLampada"},
-			{typ: int('='), val: "="},
-			{typ: NUM, val: "100"},
-			{typ: int('.'), val: "."},
-
-			// se umidade < 40 entao
-			{typ: IF, val: "if"},
-			{typ: IDENT, val: "umidade"},
-			{typ: OPLOGIC, val: "<"},
-			{typ: NUM, val: "40"},
-			{typ: THEN, val: "then"},
-
-			// enviar alerta ("Ar seco detectado") Monitor.   (parênteses adicionados p/ casar a regra)
-			{typ: SEND, val: "send"},
-			{typ: ALERT, val: "alert"},
-			{typ: int('('), val: "("},
-			{typ: MSG, val: "Ar seco detectado"},
-			{typ: int(')'), val: ")"},
-			{typ: IDENT, val: "Monitor"},
-			{typ: int('.'), val: "."},
-
-			// se verificar(umidificador) == 0 entao   (IF aninhado dentro do umidade)
-			{typ: IF, val: "if"},
-			{typ: VERIFICAR, val: "verificar"},
-			{typ: int('('), val: "("},
-			{typ: IDENT, val: "umidificador"},
-			{typ: int(')'), val: ")"},
-			{typ: OPLOGIC, val: "=="},
-			{typ: NUM, val: "0"},
-			{typ: THEN, val: "then"},
-
-			// ligar(umidificador).
-			{typ: LIGAR, val: "ligar"},
-			{typ: int('('), val: "("},
-			{typ: IDENT, val: "umidificador"},
-			{typ: int(')'), val: ")"},
-			{typ: int('.'), val: "."},
-
-			{typ: ENDIF, val: "ENDIF"},   // fecha o IF interno (verificar)
-
-			{typ: int('.'), val: "."},
-			// set potenciaUmidificador = 100.
-			{typ: SET, val: "set"},
-			{typ: IDENT, val: "potenciaUmidificador"},
-			{typ: int('='), val: "="},
-			{typ: NUM, val: "100"},
-			{typ: int('.'), val: "."},
-
-			{typ: ENDIF, val: "ENDIF"},   // fecha o IF externo (umidade)
-			{typ: int('.'), val: "."},    // ponto que fecha o CMD do IF externo na sequência
-
-			// se movimento == True entao ligar(lampada) senao desligar(lampada).
-			{typ: IF, val: "if"},
-			{typ: IDENT, val: "movimento"},
-			{typ: OPLOGIC, val: "=="},
-			{typ: BOOL, val: "True"},
-			{typ: THEN, val: "then"},
-
-			{typ: LIGAR, val: "ligar"},
-			{typ: int('('), val: "("},
-			{typ: IDENT, val: "lampada"},
-			{typ: int(')'), val: ")"},
-			{typ: int('.'), val: "."},   // ponto fecha o CMDS do then
-
-			{typ: ELSE, val: "else"},
-
-			{typ: DESLIGAR, val: "desligar"},
-			{typ: int('('), val: "("},
-			{typ: IDENT, val: "lampada"},
-			{typ: int(')'), val: ")"},
-			{typ: int('.'), val: "."},   // ponto fecha o CMDS do else
-
-			{typ: ENDIF, val: "ENDIF"},
-			{typ: int('.'), val: "."},
-		},
-	}
-	yyParse(lex)
-	final := codegen.RuntimePy + "\n\n" + lex.GeneratedCode.String()
-	os.WriteFile("saida.py", []byte(final), 0644)
+func Parse(lex yyLexer) int{
+	return yyParse(lex)
 }
-
-
-
-
-

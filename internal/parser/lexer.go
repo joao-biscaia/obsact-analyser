@@ -1,4 +1,4 @@
-package main
+package parser
 
 import (
 	"fmt"
@@ -6,13 +6,6 @@ import (
 	"unicode"
 	"unicode/utf8"
 )
-
-type item struct {
-	typ itemType
-	val string
-}
-
-type itemType int
 
 var itemMap = map[string]int{
 	"dispositivo": DISPOSITIVO,
@@ -34,36 +27,36 @@ const eof = -1
 
 const itemError = -2
 
-type lexer struct {
+type tokenizer struct {
 	input  string
 	pos    int
 	start  int
 	width  int
 	tokens chan token
 }
-type stateFn func(*lexer) stateFn
+type stateFn func(*tokenizer) stateFn
 
-func (l *lexer) run() {
+func (l *tokenizer) run() {
 	for state := lexInit; state != nil; {
 		state = state(l)
 	}
 	close(l.tokens)
 }
-func lex(input string) (*lexer, chan token) {
-	l := &lexer{
+func Tokenize(input string) chan token {
+	l := &tokenizer{
 		input:  input,
 		tokens: make(chan token),
 	}
 	go l.run()
-	return l, l.tokens
+	return l.tokens
 }
 
-func (l *lexer) emit(t token) {
+func (l *tokenizer) emit(t token) {
 	l.tokens <- token{t.typ, l.input[l.start:l.pos]}
 	l.start = l.pos
 }
 
-func lexInit(l *lexer) stateFn {
+func lexInit(l *tokenizer) stateFn {
 	for {
 		switch r := l.next(); {
 		case r == eof:
@@ -90,7 +83,7 @@ func lexInit(l *lexer) stateFn {
 		}
 	}
 }
-func lexAnd(l *lexer) stateFn {
+func lexAnd(l *tokenizer) stateFn {
 	if l.accept("&") {
 		l.emit(token{typ: AND})
 		return lexInit
@@ -98,7 +91,7 @@ func lexAnd(l *lexer) stateFn {
 	return l.errorf("sintaxe inválida: %q", l.input[l.start:l.pos])
 }
 
-func lexString(l *lexer) stateFn {
+func lexString(l *tokenizer) stateFn {
 	l.ignore()
 	l.acceptRunFunc(func(r rune) bool {
 		return r != '"'
@@ -108,7 +101,7 @@ func lexString(l *lexer) stateFn {
 	l.ignore()
 	return lexInit
 }
-func lexOperator(l *lexer) stateFn {
+func lexOperator(l *tokenizer) stateFn {
 	r := l.next()
 	switch r {
 	case '>', '<':
@@ -130,7 +123,7 @@ func lexOperator(l *lexer) stateFn {
 	return lexInit
 }
 
-func (l *lexer) next() rune {
+func (l *tokenizer) next() rune {
 	if l.pos >= len(l.input) {
 		l.width = 0
 		return eof
@@ -141,21 +134,21 @@ func (l *lexer) next() rune {
 	return r
 }
 
-func (l *lexer) backup() {
+func (l *tokenizer) backup() {
 	l.pos -= l.width
 }
-func (l *lexer) ignore() {
+func (l *tokenizer) ignore() {
 	l.start = l.pos
 }
 
-func (l *lexer) peek() rune {
+func (l *tokenizer) peek() rune {
 	r := l.next()
 	l.backup()
 	return r
 }
 
 // consome se é valido
-func (l *lexer) accept(valid string) bool {
+func (l *tokenizer) accept(valid string) bool {
 	if strings.IndexRune(valid, l.next()) >= 0 {
 		return true
 	}
@@ -163,19 +156,19 @@ func (l *lexer) accept(valid string) bool {
 	return false
 }
 
-func (l *lexer) acceptRun(valid string) {
+func (l *tokenizer) acceptRun(valid string) {
 	for strings.IndexRune(valid, l.next()) >= 0 {
 	}
 	l.backup()
 }
 
-func (l *lexer) acceptRunFunc(valid func(rune) bool) {
+func (l *tokenizer) acceptRunFunc(valid func(rune) bool) {
 	for valid(l.next()) {
 	}
 	l.backup()
 }
 
-func lexWord(l *lexer) stateFn {
+func lexWord(l *tokenizer) stateFn {
 	l.acceptRunFunc(func(r rune) bool {
 		return unicode.IsLetter(r) || unicode.IsDigit(r)
 	})
@@ -189,7 +182,7 @@ func lexWord(l *lexer) stateFn {
 	return lexInit
 }
 
-func lexNumber(l *lexer) stateFn {
+func lexNumber(l *tokenizer) stateFn {
 	digits := "0123456789"
 	l.acceptRun(digits)
 	if r := l.peek(); unicode.IsLetter(r) || unicode.IsNumber(r) {
@@ -200,7 +193,7 @@ func lexNumber(l *lexer) stateFn {
 	return lexInit
 }
 
-func (l *lexer) errorf(format string, args ...interface{}) stateFn {
+func (l *tokenizer) errorf(format string, args ...interface{}) stateFn {
 	l.tokens <- token{typ: itemError, val: fmt.Sprintf(format, args...)}
 	return nil
 }

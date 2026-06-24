@@ -1,14 +1,22 @@
+estados = {}
 def ligar(namedevice):
     print(namedevice + " ligado!\n")
+    estados[namedevice] = True
     return 1
 
 def desligar(namedevice):
     print(namedevice + " desligado!\n")
+    estados[namedevice] = False
     return 0
 
 def verificar(namedevice):
-    print(namedevice + "verificado!\n")
-    return 0
+    if estados.get(namedevice):
+        print(namedevice + " está ligado")
+        return 1
+    else:
+        print(namedevice + " está desligado")
+        return 0
+
 
 def alert(device, msg, val=None):
     if not val:
@@ -17,18 +25,5 @@ def alert(device, msg, val=None):
         print(f"[ALERT] {device}: {msg} - {val}")
 
 
-movimento = 0
-umidade = 0
-potenciaLampada = 0
-potenciaUmidificador = 0
-potenciaLampada = 100
-if umidade < 40:
-	alert('Monitor', 'Ar seco detectado')
-	if verificar('umidificador') == 0:
-		ligar('umidificador')
-	potenciaUmidificador = 100
-if movimento == True:
-	ligar('lampada')
-else:
-	desligar('lampada')
+ligar('lampada')
 
