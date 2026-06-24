@@ -25,5 +25,12 @@ def alert(device, msg, val=None):
         print(f"[ALERT] {device}: {msg} - {val}")
 
 
-ligar('lampada')
+umidade = 0
+potenciaUmidificador = 0
+potenciaUmidificador = 100
+if umidade < 40:
+	alert('Monitor', 'Ar seco detectado')
+	if verificar('umidificador') == 0:
+		ligar('umidificador')
+	potenciaUmidificador = 100
 

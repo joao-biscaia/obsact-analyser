@@ -21,6 +21,7 @@ var itemMap = map[string]int{
 	"&&":          AND,
 	"True":        BOOL,
 	"False":       BOOL,
+	"fim":         ENDIF,
 }
 
 const eof = -1
@@ -71,7 +72,7 @@ func lexInit(l *tokenizer) stateFn {
 			return lexNumber
 		case r == '"':
 			return lexString
-		case strings.ContainsRune(":{}(),.=", r):
+		case strings.ContainsRune(":{}(),.", r):
 			l.emit(token{typ: int(r)})
 		case r == '<' || r == '>' || r == '=' || r == '!':
 			l.backup()
@@ -107,17 +108,22 @@ func lexOperator(l *tokenizer) stateFn {
 	case '>', '<':
 		l.accept("=")
 		l.emit(token{typ: OPLOGIC})
+		break
 	case '=':
 		if l.accept("=") {
 			l.emit(token{typ: OPLOGIC})
+			break
 		} else {
 			l.emit(token{typ: int('=')})
+			break
 		}
 	case '!':
 		if !l.accept("=") {
 			l.errorf("operador inválido!")
+			break
 		} else {
 			l.emit(token{typ: OPLOGIC})
+			break
 		}
 	}
 	return lexInit

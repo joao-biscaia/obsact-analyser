@@ -1,2 +1,11 @@
-dispositivo: { lampada }
-ligar (lampada).
+dispositivo : { higrometro , umidade }
+dispositivo : { umidificador , potenciaUmidificador }
+dispositivo : { Monitor }
+set potenciaUmidificador = 100.
+se umidade < 40 entao
+  enviar alerta ("Ar seco detectado") Monitor.
+  se verificar (umidificador) == 0 entao
+    ligar (umidificador).
+  fim.
+  set potenciaUmidificador = 100.
+fim.

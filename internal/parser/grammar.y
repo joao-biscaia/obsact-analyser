@@ -147,6 +147,7 @@ func (l * Lexer) Lex(lval *yySymType) int{
 	if !ok{
 		return 0
 	}
+
 	switch t.typ {
             case NUM:
                 n, _ := strconv.Atoi(t.val)
