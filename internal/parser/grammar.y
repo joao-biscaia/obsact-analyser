@@ -16,30 +16,37 @@ import(
 	str string
 	num int
 }
-%token <str> NAMEDEVICE
 %token DISPOSITIVO
-%token <str> OBSERVATION
 %token <num> NUM
 %token <str> MSG
+%token <str> IDENT
 %token <str> BOOL
 %token <str> OPLOGIC
 %token SET IF ELSE ENDIF THEN AND ALERT SEND
 %token LIGAR DESLIGAR VERIFICAR
 %type <str> ACTION
-%type <str> CMD CMDS ACT ATTRIB OBSACT ACTEXECUTE ACTALERT OBS VAR EXPR DEVICE
+%type <str> CMD CMDS ACT ATTRIB OBSACT ACTEXECUTE ACTALERT OBS VAR EXPR DEVICE DEVICES
 %nonassoc THEN
 %nonassoc ELSE
 %%
 
 PROGRAM:
 	DEVICES CMDS{
-		yylex.(*Lexer).GeneratedCode.WriteString($2 + "\n")
+		yylex.(*Lexer).GeneratedCode.WriteString($1 + $2 + "\n")
 	}
-DEVICES: DEVICE DEVICES | DEVICE
-DEVICE: DISPOSITIVO ':' '{' NAMEDEVICE '}'{
+DEVICE:
+	DISPOSITIVO ':' '{' IDENT '}' {
+		$$ = ""
+	}
+  | DISPOSITIVO ':' '{' IDENT ',' IDENT '}' {
+		$$ = fmt.Sprintf("%s = 0\n", $6)
+	}
 
-}
-DEVICE: DISPOSITIVO ':' '{' NAMEDEVICE ',' OBSERVATION '}'
+
+DEVICES:
+	DEVICE DEVICES { $$ = $1 + $2 }
+  | DEVICE        { $$ = $1 }
+
 CMDS:
 	CMD '.' CMDS{ $$ = $1 + $3}
 | CMD '.' {$$ = $1}
@@ -54,11 +61,11 @@ CMD:
   	$$ = $1+ "\n"
   }
 ATTRIB:
-	SET OBSERVATION '=' VAR{
+	SET IDENT '=' VAR{
 		$$ = fmt.Sprintf("%s = %s", $2, $4)
 	}
 ATTRIB:
-	SET OBSERVATION '=' ACTEXECUTE{
+	SET IDENT '=' ACTEXECUTE{
 		$$ = fmt.Sprintf("%s = %s", $2, $4)
 	}
 OBSACT:
@@ -80,7 +87,7 @@ OBS:
 	}
 EXPR: VAR
 | ACTEXECUTE
-| OBSERVATION
+| IDENT
 VAR:
 	NUM {
 		$$ = strconv.Itoa($1)
@@ -92,14 +99,14 @@ ACT:
 	ACTEXECUTE
  	| ACTALERT
 ACTEXECUTE:
-	ACTION '(' NAMEDEVICE ')'{
+	ACTION '(' IDENT ')'{
 		$$ = fmt.Sprintf("%s('%s')", $1, $3)
 	}
-ACTALERT: SEND ALERT '(' MSG ')' NAMEDEVICE{
+ACTALERT: SEND ALERT '(' MSG ')' IDENT{
 	$$ = fmt.Sprintf("alert('%s', '%s')", $6, $4)
 }
 ACTALERT:
-	SEND ALERT '(' MSG ',' OBSERVATION ')' NAMEDEVICE{
+	SEND ALERT '(' MSG ',' IDENT ')' IDENT{
 		$$ = fmt.Sprintf("alert('%s', '%s', '%s')", $6, $4, $8)
 	}
 ACTION:
@@ -146,8 +153,7 @@ func (l * Lexer) Lex(lval *yySymType) int{
             case NUM:
                 n, _ := strconv.Atoi(t.val)
                 lval.num = n
-
-            case NAMEDEVICE, OBSERVATION, MSG, BOOL, OPLOGIC:
+            case IDENT, MSG, BOOL, OPLOGIC:
                 lval.str = t.val
         }
 	return t.typ
@@ -166,42 +172,42 @@ func main (){
 		tokens: []token{
 			{typ: DISPOSITIVO, val: "dispositivo"},
 			{typ: int(':'), val: ":"}, {typ: int('{'), val: "{"},
-			{typ: NAMEDEVICE, val: "celular"}, {typ: int(','), val: ","},
-			{typ: OBSERVATION, val: "movimento"}, {typ: int('}'), val: "}"},
+			{typ: IDENT, val: "celular"}, {typ: int(','), val: ","},
+			{typ: IDENT, val: "movimento"}, {typ: int('}'), val: "}"},
 
 			// dispositivo:{higrometro,umidade}
 			{typ: DISPOSITIVO, val: "dispositivo"},
 			{typ: int(':'), val: ":"}, {typ: int('{'), val: "{"},
-			{typ: NAMEDEVICE, val: "higrometro"}, {typ: int(','), val: ","},
-			{typ: OBSERVATION, val: "umidade"}, {typ: int('}'), val: "}"},
+			{typ: IDENT, val: "higrometro"}, {typ: int(','), val: ","},
+			{typ: IDENT, val: "umidade"}, {typ: int('}'), val: "}"},
 
 			// dispositivo:{lampada,potenciaLampada}
 			{typ: DISPOSITIVO, val: "dispositivo"},
 			{typ: int(':'), val: ":"}, {typ: int('{'), val: "{"},
-			{typ: NAMEDEVICE, val: "lampada"}, {typ: int(','), val: ","},
-			{typ: OBSERVATION, val: "potenciaLampada"}, {typ: int('}'), val: "}"},
+			{typ: IDENT, val: "lampada"}, {typ: int(','), val: ","},
+			{typ: IDENT, val: "potenciaLampada"}, {typ: int('}'), val: "}"},
 
 			// dispositivo:{umidificador,potenciaUmidificador}
 			{typ: DISPOSITIVO, val: "dispositivo"},
 			{typ: int(':'), val: ":"}, {typ: int('{'), val: "{"},
-			{typ: NAMEDEVICE, val: "umidificador"}, {typ: int(','), val: ","},
-			{typ: OBSERVATION, val: "potenciaUmidificador"}, {typ: int('}'), val: "}"},
+			{typ: IDENT, val: "umidificador"}, {typ: int(','), val: ","},
+			{typ: IDENT, val: "potenciaUmidificador"}, {typ: int('}'), val: "}"},
 
 			// dispositivo:{Monitor}
 			{typ: DISPOSITIVO, val: "dispositivo"},
 			{typ: int(':'), val: ":"}, {typ: int('{'), val: "{"},
-			{typ: NAMEDEVICE, val: "Monitor"}, {typ: int('}'), val: "}"},
+			{typ: IDENT, val: "Monitor"}, {typ: int('}'), val: "}"},
 
 			// set potenciaLampada = 100.   (traduzido da linha "set {lampada,potenciaLampada}=100")
 			{typ: SET, val: "set"},
-			{typ: OBSERVATION, val: "potenciaLampada"},
+			{typ: IDENT, val: "potenciaLampada"},
 			{typ: int('='), val: "="},
 			{typ: NUM, val: "100"},
 			{typ: int('.'), val: "."},
 
 			// se umidade < 40 entao
 			{typ: IF, val: "if"},
-			{typ: OBSERVATION, val: "umidade"},
+			{typ: IDENT, val: "umidade"},
 			{typ: OPLOGIC, val: "<"},
 			{typ: NUM, val: "40"},
 			{typ: THEN, val: "then"},
@@ -212,14 +218,14 @@ func main (){
 			{typ: int('('), val: "("},
 			{typ: MSG, val: "Ar seco detectado"},
 			{typ: int(')'), val: ")"},
-			{typ: NAMEDEVICE, val: "Monitor"},
+			{typ: IDENT, val: "Monitor"},
 			{typ: int('.'), val: "."},
 
 			// se verificar(umidificador) == 0 entao   (IF aninhado dentro do umidade)
 			{typ: IF, val: "if"},
 			{typ: VERIFICAR, val: "verificar"},
 			{typ: int('('), val: "("},
-			{typ: NAMEDEVICE, val: "umidificador"},
+			{typ: IDENT, val: "umidificador"},
 			{typ: int(')'), val: ")"},
 			{typ: OPLOGIC, val: "=="},
 			{typ: NUM, val: "0"},
@@ -228,7 +234,7 @@ func main (){
 			// ligar(umidificador).
 			{typ: LIGAR, val: "ligar"},
 			{typ: int('('), val: "("},
-			{typ: NAMEDEVICE, val: "umidificador"},
+			{typ: IDENT, val: "umidificador"},
 			{typ: int(')'), val: ")"},
 			{typ: int('.'), val: "."},
 
@@ -237,7 +243,7 @@ func main (){
 			{typ: int('.'), val: "."},
 			// set potenciaUmidificador = 100.
 			{typ: SET, val: "set"},
-			{typ: OBSERVATION, val: "potenciaUmidificador"},
+			{typ: IDENT, val: "potenciaUmidificador"},
 			{typ: int('='), val: "="},
 			{typ: NUM, val: "100"},
 			{typ: int('.'), val: "."},
@@ -247,14 +253,14 @@ func main (){
 
 			// se movimento == True entao ligar(lampada) senao desligar(lampada).
 			{typ: IF, val: "if"},
-			{typ: OBSERVATION, val: "movimento"},
+			{typ: IDENT, val: "movimento"},
 			{typ: OPLOGIC, val: "=="},
 			{typ: BOOL, val: "True"},
 			{typ: THEN, val: "then"},
 
 			{typ: LIGAR, val: "ligar"},
 			{typ: int('('), val: "("},
-			{typ: NAMEDEVICE, val: "lampada"},
+			{typ: IDENT, val: "lampada"},
 			{typ: int(')'), val: ")"},
 			{typ: int('.'), val: "."},   // ponto fecha o CMDS do then
 
@@ -262,7 +268,7 @@ func main (){
 
 			{typ: DESLIGAR, val: "desligar"},
 			{typ: int('('), val: "("},
-			{typ: NAMEDEVICE, val: "lampada"},
+			{typ: IDENT, val: "lampada"},
 			{typ: int(')'), val: ")"},
 			{typ: int('.'), val: "."},   // ponto fecha o CMDS do else
 

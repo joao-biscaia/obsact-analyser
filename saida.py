@@ -17,6 +17,10 @@ def alert(device, msg, val=None):
         print(f"[ALERT] {device}: {msg} - {val}")
 
 
+movimento = 0
+umidade = 0
+potenciaLampada = 0
+potenciaUmidificador = 0
 potenciaLampada = 100
 if umidade < 40:
 	alert('Monitor', 'Ar seco detectado')

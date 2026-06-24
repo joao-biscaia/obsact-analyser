@@ -5,9 +5,9 @@ state 0
 	DISPOSITIVO  shift 4
 	.  error
 
-	PROGRAM  goto 1
-	DEVICES  goto 2
 	DEVICE  goto 3
+	DEVICES  goto 2
+	PROGRAM  goto 1
 
 state 1
 	$accept:  PROGRAM.$end 
@@ -38,17 +38,17 @@ state 2
 
 state 3
 	DEVICES:  DEVICE.DEVICES 
-	DEVICES:  DEVICE.    (3)
+	DEVICES:  DEVICE.    (5)
 
 	DISPOSITIVO  shift 4
-	.  reduce 3 (src line 38)
+	.  reduce 5 (src line 48)
 
-	DEVICES  goto 19
 	DEVICE  goto 3
+	DEVICES  goto 19
 
 state 4
-	DEVICE:  DISPOSITIVO.':' '{' NAMEDEVICE '}' 
-	DEVICE:  DISPOSITIVO.':' '{' NAMEDEVICE ',' OBSERVATION '}' 
+	DEVICE:  DISPOSITIVO.':' '{' IDENT '}' 
+	DEVICE:  DISPOSITIVO.':' '{' IDENT ',' IDENT '}' 
 
 	':'  shift 20
 	.  error
@@ -57,7 +57,7 @@ state 4
 state 5
 	PROGRAM:  DEVICES CMDS.    (1)
 
-	.  reduce 1 (src line 34)
+	.  reduce 1 (src line 33)
 
 
 state 6
@@ -71,26 +71,26 @@ state 6
 state 7
 	CMD:  ATTRIB.    (8)
 
-	.  reduce 8 (src line 44)
+	.  reduce 8 (src line 53)
 
 
 state 8
 	CMD:  OBSACT.    (9)
 
-	.  reduce 9 (src line 48)
+	.  reduce 9 (src line 57)
 
 
 state 9
 	CMD:  ACT.    (10)
 
-	.  reduce 10 (src line 51)
+	.  reduce 10 (src line 60)
 
 
 state 10
-	ATTRIB:  SET.OBSERVATION '=' VAR 
-	ATTRIB:  SET.OBSERVATION '=' ACTEXECUTE 
+	ATTRIB:  SET.IDENT '=' VAR 
+	ATTRIB:  SET.IDENT '=' ACTEXECUTE 
 
-	OBSERVATION  shift 22
+	IDENT  shift 22
 	.  error
 
 
@@ -98,8 +98,8 @@ state 11
 	OBSACT:  IF.OBS THEN CMDS ENDIF 
 	OBSACT:  IF.OBS THEN CMDS ELSE CMDS ENDIF 
 
-	OBSERVATION  shift 27
 	NUM  shift 28
+	IDENT  shift 27
 	BOOL  shift 29
 	LIGAR  shift 16
 	DESLIGAR  shift 17
@@ -115,25 +115,25 @@ state 11
 state 12
 	ACT:  ACTEXECUTE.    (22)
 
-	.  reduce 22 (src line 89)
+	.  reduce 22 (src line 98)
 
 
 state 13
 	ACT:  ACTALERT.    (23)
 
-	.  reduce 23 (src line 91)
+	.  reduce 23 (src line 100)
 
 
 state 14
-	ACTEXECUTE:  ACTION.'(' NAMEDEVICE ')' 
+	ACTEXECUTE:  ACTION.'(' IDENT ')' 
 
 	'('  shift 30
 	.  error
 
 
 state 15
-	ACTALERT:  SEND.ALERT '(' MSG ')' NAMEDEVICE 
-	ACTALERT:  SEND.ALERT '(' MSG ',' OBSERVATION ')' NAMEDEVICE 
+	ACTALERT:  SEND.ALERT '(' MSG ')' IDENT 
+	ACTALERT:  SEND.ALERT '(' MSG ',' IDENT ')' IDENT 
 
 	ALERT  shift 31
 	.  error
@@ -142,30 +142,30 @@ state 15
 state 16
 	ACTION:  LIGAR.    (27)
 
-	.  reduce 27 (src line 103)
+	.  reduce 27 (src line 112)
 
 
 state 17
 	ACTION:  DESLIGAR.    (28)
 
-	.  reduce 28 (src line 107)
+	.  reduce 28 (src line 116)
 
 
 state 18
 	ACTION:  VERIFICAR.    (29)
 
-	.  reduce 29 (src line 110)
+	.  reduce 29 (src line 119)
 
 
 state 19
-	DEVICES:  DEVICE DEVICES.    (2)
+	DEVICES:  DEVICE DEVICES.    (4)
 
-	.  reduce 2 (src line 38)
+	.  reduce 4 (src line 46)
 
 
 state 20
-	DEVICE:  DISPOSITIVO ':'.'{' NAMEDEVICE '}' 
-	DEVICE:  DISPOSITIVO ':'.'{' NAMEDEVICE ',' OBSERVATION '}' 
+	DEVICE:  DISPOSITIVO ':'.'{' IDENT '}' 
+	DEVICE:  DISPOSITIVO ':'.'{' IDENT ',' IDENT '}' 
 
 	'{'  shift 32
 	.  error
@@ -181,7 +181,7 @@ state 21
 	LIGAR  shift 16
 	DESLIGAR  shift 17
 	VERIFICAR  shift 18
-	.  reduce 7 (src line 43)
+	.  reduce 7 (src line 52)
 
 	ACTION  goto 14
 	CMD  goto 6
@@ -193,8 +193,8 @@ state 21
 	ACTALERT  goto 13
 
 state 22
-	ATTRIB:  SET OBSERVATION.'=' VAR 
-	ATTRIB:  SET OBSERVATION.'=' ACTEXECUTE 
+	ATTRIB:  SET IDENT.'=' VAR 
+	ATTRIB:  SET IDENT.'=' ACTEXECUTE 
 
 	'='  shift 34
 	.  error
@@ -219,65 +219,65 @@ state 24
 state 25
 	EXPR:  VAR.    (17)
 
-	.  reduce 17 (src line 79)
+	.  reduce 17 (src line 88)
 
 
 state 26
 	EXPR:  ACTEXECUTE.    (18)
 
-	.  reduce 18 (src line 80)
+	.  reduce 18 (src line 89)
 
 
 state 27
-	EXPR:  OBSERVATION.    (19)
+	EXPR:  IDENT.    (19)
 
-	.  reduce 19 (src line 81)
+	.  reduce 19 (src line 90)
 
 
 state 28
 	VAR:  NUM.    (20)
 
-	.  reduce 20 (src line 82)
+	.  reduce 20 (src line 91)
 
 
 state 29
 	VAR:  BOOL.    (21)
 
-	.  reduce 21 (src line 86)
+	.  reduce 21 (src line 95)
 
 
 state 30
-	ACTEXECUTE:  ACTION '('.NAMEDEVICE ')' 
+	ACTEXECUTE:  ACTION '('.IDENT ')' 
 
-	NAMEDEVICE  shift 37
+	IDENT  shift 37
 	.  error
 
 
 state 31
-	ACTALERT:  SEND ALERT.'(' MSG ')' NAMEDEVICE 
-	ACTALERT:  SEND ALERT.'(' MSG ',' OBSERVATION ')' NAMEDEVICE 
+	ACTALERT:  SEND ALERT.'(' MSG ')' IDENT 
+	ACTALERT:  SEND ALERT.'(' MSG ',' IDENT ')' IDENT 
 
 	'('  shift 38
 	.  error
 
 
 state 32
-	DEVICE:  DISPOSITIVO ':' '{'.NAMEDEVICE '}' 
-	DEVICE:  DISPOSITIVO ':' '{'.NAMEDEVICE ',' OBSERVATION '}' 
+	DEVICE:  DISPOSITIVO ':' '{'.IDENT '}' 
+	DEVICE:  DISPOSITIVO ':' '{'.IDENT ',' IDENT '}' 
 
-	NAMEDEVICE  shift 39
+	IDENT  shift 39
 	.  error
 
 
 state 33
 	CMDS:  CMD '.' CMDS.    (6)
 
-	.  reduce 6 (src line 41)
+	.  reduce 6 (src line 50)
 
 
 state 34
-	ATTRIB:  SET OBSERVATION '='.VAR 
-	ATTRIB:  SET OBSERVATION '='.ACTEXECUTE 
+	ATTRIB:  SET IDENT '='.VAR 
+	ATTRIB:  SET IDENT '='.ACTEXECUTE 
 
 	NUM  shift 28
 	BOOL  shift 29
@@ -315,8 +315,8 @@ state 36
 	OBS:  EXPR OPLOGIC.EXPR 
 	OBS:  EXPR OPLOGIC.EXPR AND OBS 
 
-	OBSERVATION  shift 27
 	NUM  shift 28
+	IDENT  shift 27
 	BOOL  shift 29
 	LIGAR  shift 16
 	DESLIGAR  shift 17
@@ -329,23 +329,23 @@ state 36
 	EXPR  goto 43
 
 state 37
-	ACTEXECUTE:  ACTION '(' NAMEDEVICE.')' 
+	ACTEXECUTE:  ACTION '(' IDENT.')' 
 
 	')'  shift 44
 	.  error
 
 
 state 38
-	ACTALERT:  SEND ALERT '('.MSG ')' NAMEDEVICE 
-	ACTALERT:  SEND ALERT '('.MSG ',' OBSERVATION ')' NAMEDEVICE 
+	ACTALERT:  SEND ALERT '('.MSG ')' IDENT 
+	ACTALERT:  SEND ALERT '('.MSG ',' IDENT ')' IDENT 
 
 	MSG  shift 45
 	.  error
 
 
 state 39
-	DEVICE:  DISPOSITIVO ':' '{' NAMEDEVICE.'}' 
-	DEVICE:  DISPOSITIVO ':' '{' NAMEDEVICE.',' OBSERVATION '}' 
+	DEVICE:  DISPOSITIVO ':' '{' IDENT.'}' 
+	DEVICE:  DISPOSITIVO ':' '{' IDENT.',' IDENT '}' 
 
 	'}'  shift 46
 	','  shift 47
@@ -353,15 +353,15 @@ state 39
 
 
 state 40
-	ATTRIB:  SET OBSERVATION '=' VAR.    (11)
+	ATTRIB:  SET IDENT '=' VAR.    (11)
 
-	.  reduce 11 (src line 54)
+	.  reduce 11 (src line 63)
 
 
 state 41
-	ATTRIB:  SET OBSERVATION '=' ACTEXECUTE.    (12)
+	ATTRIB:  SET IDENT '=' ACTEXECUTE.    (12)
 
-	.  reduce 12 (src line 58)
+	.  reduce 12 (src line 67)
 
 
 state 42
@@ -378,18 +378,18 @@ state 43
 	OBS:  EXPR OPLOGIC EXPR.AND OBS 
 
 	AND  shift 50
-	.  reduce 15 (src line 71)
+	.  reduce 15 (src line 80)
 
 
 state 44
-	ACTEXECUTE:  ACTION '(' NAMEDEVICE ')'.    (24)
+	ACTEXECUTE:  ACTION '(' IDENT ')'.    (24)
 
-	.  reduce 24 (src line 92)
+	.  reduce 24 (src line 101)
 
 
 state 45
-	ACTALERT:  SEND ALERT '(' MSG.')' NAMEDEVICE 
-	ACTALERT:  SEND ALERT '(' MSG.',' OBSERVATION ')' NAMEDEVICE 
+	ACTALERT:  SEND ALERT '(' MSG.')' IDENT 
+	ACTALERT:  SEND ALERT '(' MSG.',' IDENT ')' IDENT 
 
 	','  shift 52
 	')'  shift 51
@@ -397,22 +397,22 @@ state 45
 
 
 state 46
-	DEVICE:  DISPOSITIVO ':' '{' NAMEDEVICE '}'.    (4)
+	DEVICE:  DISPOSITIVO ':' '{' IDENT '}'.    (2)
 
-	.  reduce 4 (src line 39)
+	.  reduce 2 (src line 37)
 
 
 state 47
-	DEVICE:  DISPOSITIVO ':' '{' NAMEDEVICE ','.OBSERVATION '}' 
+	DEVICE:  DISPOSITIVO ':' '{' IDENT ','.IDENT '}' 
 
-	OBSERVATION  shift 53
+	IDENT  shift 53
 	.  error
 
 
 state 48
 	OBSACT:  IF OBS THEN CMDS ENDIF.    (13)
 
-	.  reduce 13 (src line 62)
+	.  reduce 13 (src line 71)
 
 
 state 49
@@ -438,8 +438,8 @@ state 49
 state 50
 	OBS:  EXPR OPLOGIC EXPR AND.OBS 
 
-	OBSERVATION  shift 27
 	NUM  shift 28
+	IDENT  shift 27
 	BOOL  shift 29
 	LIGAR  shift 16
 	DESLIGAR  shift 17
@@ -453,21 +453,21 @@ state 50
 	EXPR  goto 24
 
 state 51
-	ACTALERT:  SEND ALERT '(' MSG ')'.NAMEDEVICE 
+	ACTALERT:  SEND ALERT '(' MSG ')'.IDENT 
 
-	NAMEDEVICE  shift 56
+	IDENT  shift 56
 	.  error
 
 
 state 52
-	ACTALERT:  SEND ALERT '(' MSG ','.OBSERVATION ')' NAMEDEVICE 
+	ACTALERT:  SEND ALERT '(' MSG ','.IDENT ')' IDENT 
 
-	OBSERVATION  shift 57
+	IDENT  shift 57
 	.  error
 
 
 state 53
-	DEVICE:  DISPOSITIVO ':' '{' NAMEDEVICE ',' OBSERVATION.'}' 
+	DEVICE:  DISPOSITIVO ':' '{' IDENT ',' IDENT.'}' 
 
 	'}'  shift 58
 	.  error
@@ -483,48 +483,48 @@ state 54
 state 55
 	OBS:  EXPR OPLOGIC EXPR AND OBS.    (16)
 
-	.  reduce 16 (src line 75)
+	.  reduce 16 (src line 84)
 
 
 state 56
-	ACTALERT:  SEND ALERT '(' MSG ')' NAMEDEVICE.    (25)
+	ACTALERT:  SEND ALERT '(' MSG ')' IDENT.    (25)
 
-	.  reduce 25 (src line 96)
+	.  reduce 25 (src line 105)
 
 
 state 57
-	ACTALERT:  SEND ALERT '(' MSG ',' OBSERVATION.')' NAMEDEVICE 
+	ACTALERT:  SEND ALERT '(' MSG ',' IDENT.')' IDENT 
 
 	')'  shift 60
 	.  error
 
 
 state 58
-	DEVICE:  DISPOSITIVO ':' '{' NAMEDEVICE ',' OBSERVATION '}'.    (5)
+	DEVICE:  DISPOSITIVO ':' '{' IDENT ',' IDENT '}'.    (3)
 
-	.  reduce 5 (src line 40)
+	.  reduce 3 (src line 41)
 
 
 state 59
 	OBSACT:  IF OBS THEN CMDS ELSE CMDS ENDIF.    (14)
 
-	.  reduce 14 (src line 67)
+	.  reduce 14 (src line 76)
 
 
 state 60
-	ACTALERT:  SEND ALERT '(' MSG ',' OBSERVATION ')'.NAMEDEVICE 
+	ACTALERT:  SEND ALERT '(' MSG ',' IDENT ')'.IDENT 
 
-	NAMEDEVICE  shift 61
+	IDENT  shift 61
 	.  error
 
 
 state 61
-	ACTALERT:  SEND ALERT '(' MSG ',' OBSERVATION ')' NAMEDEVICE.    (26)
+	ACTALERT:  SEND ALERT '(' MSG ',' IDENT ')' IDENT.    (26)
 
-	.  reduce 26 (src line 99)
+	.  reduce 26 (src line 108)
 
 
-29 terminals, 15 nonterminals
+28 terminals, 15 nonterminals
 30 grammar rules, 62/16000 states
 0 shift/reduce, 0 reduce/reduce conflicts reported
 64 working sets used
@@ -535,4 +535,4 @@ memory: parser 79/240000
 29 entries saved by goto default
 Optimizer space used: output 71/240000
 71 table entries, 0 zero
-maximum spread: 29, maximum offset: 50
+maximum spread: 28, maximum offset: 50
