@@ -24,20 +24,22 @@ type yySymType struct {
 const DISPOSITIVO = 57346
 const NUM = 57347
 const MSG = 57348
-const IDENT = 57349
-const BOOL = 57350
-const OPLOGIC = 57351
-const SET = 57352
-const IF = 57353
-const ELSE = 57354
-const ENDIF = 57355
-const THEN = 57356
-const AND = 57357
-const ALERT = 57358
-const SEND = 57359
-const LIGAR = 57360
-const DESLIGAR = 57361
-const VERIFICAR = 57362
+const PARA = 57349
+const TODOS = 57350
+const IDENT = 57351
+const BOOL = 57352
+const OPLOGIC = 57353
+const SET = 57354
+const IF = 57355
+const ELSE = 57356
+const ENDIF = 57357
+const THEN = 57358
+const AND = 57359
+const ALERT = 57360
+const SEND = 57361
+const LIGAR = 57362
+const DESLIGAR = 57363
+const VERIFICAR = 57364
 
 var yyToknames = [...]string{
 	"$end",
@@ -46,6 +48,8 @@ var yyToknames = [...]string{
 	"DISPOSITIVO",
 	"NUM",
 	"MSG",
+	"PARA",
+	"TODOS",
 	"IDENT",
 	"BOOL",
 	"OPLOGIC",
@@ -76,7 +80,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line internal/parser/grammar.y:121
+//line internal/parser/grammar.y:142
 
 func indent(s string) string {
 	linhas := strings.Split(strings.TrimRight(s, "\n"), "\n")
@@ -104,7 +108,7 @@ func (l *Lexer) Lex(lval *yySymType) int {
 	if !ok {
 		return 0
 	}
-
+	fmt.Printf("TOKEN %-12s val=%q\n", t.typ, t.val)
 	switch t.typ {
 	case NUM:
 		n, _ := strconv.Atoi(t.val)
@@ -131,64 +135,70 @@ var yyExca = [...]int8{
 
 const yyPrivate = 57344
 
-const yyLast = 71
+const yyLast = 82
 
 var yyAct = [...]int8{
-	12, 25, 5, 23, 24, 52, 60, 44, 34, 51,
-	38, 30, 26, 28, 21, 27, 29, 46, 47, 58,
-	32, 20, 10, 11, 33, 31, 16, 17, 18, 15,
-	16, 17, 18, 50, 35, 41, 40, 26, 42, 49,
-	48, 43, 28, 59, 36, 29, 61, 57, 56, 53,
-	39, 26, 54, 37, 55, 16, 17, 18, 22, 45,
-	4, 2, 1, 3, 13, 19, 8, 7, 9, 6,
-	14,
+	66, 12, 25, 5, 23, 24, 52, 62, 44, 34,
+	51, 38, 30, 26, 28, 46, 47, 69, 27, 29,
+	21, 59, 32, 70, 63, 33, 20, 50, 28, 16,
+	17, 18, 31, 29, 49, 48, 41, 40, 26, 42,
+	10, 11, 43, 16, 17, 18, 35, 15, 16, 17,
+	18, 60, 26, 54, 36, 55, 64, 57, 65, 56,
+	67, 58, 53, 39, 37, 22, 68, 61, 45, 4,
+	71, 72, 2, 1, 3, 13, 19, 8, 7, 9,
+	6, 14,
 }
 
 var yyPact = [...]int16{
-	56, -32768, 12, 56, 0, -32768, -11, -32768, -32768, -32768,
-	51, 8, -32768, -32768, -16, 9, -32768, -32768, -32768, -32768,
-	-2, 12, -18, 20, 35, -32768, -32768, -32768, -32768, -32768,
-	46, -17, 43, -32768, 37, 12, 8, -21, 53, -6,
-	-32768, -32768, 27, 18, -32768, -19, -32768, 42, -32768, 12,
-	8, 41, 40, -4, 30, -32768, -32768, -22, -32768, -32768,
-	39, -32768,
+	65, -32768, 28, 65, 3, -32768, -7, -32768, -32768, -32768,
+	56, 9, -32768, -32768, -17, 14, -32768, -32768, -32768, -32768,
+	-2, 28, -19, 30, 43, -32768, -32768, -32768, -32768, -32768,
+	55, -18, 54, -32768, 23, 28, 9, -22, 62, -10,
+	-32768, -32768, 20, 10, -32768, -20, -32768, 53, -32768, 28,
+	9, 50, 52, -4, 36, -32768, -32768, 59, -23, -32768,
+	-32768, 1, 49, 51, 58, -32768, -32768, -9, 0, 51,
+	51, -32768, -32768,
 }
 
 var yyPgo = [...]int8{
-	0, 70, 69, 2, 68, 67, 66, 0, 64, 3,
-	1, 4, 63, 61, 62,
+	0, 81, 80, 3, 79, 78, 77, 1, 75, 4,
+	2, 5, 74, 72, 0, 73,
 }
 
 var yyR1 = [...]int8{
-	0, 14, 12, 12, 13, 13, 3, 3, 2, 2,
+	0, 15, 12, 12, 13, 13, 3, 3, 2, 2,
 	2, 5, 5, 6, 6, 9, 9, 11, 11, 11,
-	10, 10, 4, 4, 7, 8, 8, 1, 1, 1,
+	10, 10, 4, 4, 7, 8, 8, 8, 14, 14,
+	8, 1, 1, 1,
 }
 
 var yyR2 = [...]int8{
 	0, 2, 5, 7, 2, 1, 3, 2, 1, 1,
 	1, 4, 4, 5, 7, 3, 5, 1, 1, 1,
-	1, 1, 1, 1, 4, 6, 8, 1, 1, 1,
+	1, 1, 1, 1, 4, 6, 9, 11, 3, 1,
+	8, 1, 1, 1,
 }
 
 var yyChk = [...]int16{
-	-32768, -14, -13, -12, 4, -3, -2, -5, -6, -4,
-	10, 11, -7, -8, -1, 17, 18, 19, 20, -13,
-	21, 25, 7, -9, -11, -10, -7, 7, 5, 8,
-	27, 16, 22, -3, 26, 14, 9, 7, 27, 7,
-	-10, -7, -3, -11, 28, 6, 23, 24, 13, 12,
-	15, 28, 24, 7, -3, -9, 7, 7, 23, 13,
-	28, 7,
+	-32768, -15, -13, -12, 4, -3, -2, -5, -6, -4,
+	12, 13, -7, -8, -1, 19, 20, 21, 22, -13,
+	23, 27, 9, -9, -11, -10, -7, 9, 5, 10,
+	29, 18, 24, -3, 28, 16, 11, 9, 29, 9,
+	-10, -7, -3, -11, 30, 6, 25, 26, 15, 14,
+	17, 30, 26, 9, -3, -9, 9, 7, 9, 25,
+	15, 8, 30, 23, 7, 9, -14, 9, 8, 26,
+	23, -14, -14,
 }
 
 var yyDef = [...]int8{
 	0, -2, 0, 5, 0, 1, 0, 8, 9, 10,
-	0, 0, 22, 23, 0, 0, 27, 28, 29, 4,
+	0, 0, 22, 23, 0, 0, 31, 32, 33, 4,
 	0, 7, 0, 0, 0, 17, 18, 19, 20, 21,
 	0, 0, 0, 6, 0, 0, 0, 0, 0, 0,
 	11, 12, 0, 15, 24, 0, 2, 0, 13, 0,
-	0, 0, 0, 0, 0, 16, 25, 0, 3, 14,
-	0, 26,
+	0, 0, 0, 0, 0, 16, 25, 0, 0, 3,
+	14, 0, 0, 0, 0, 30, 26, 29, 0, 0,
+	0, 28, 27,
 }
 
 var yyTok1 = [...]int8{
@@ -196,20 +206,21 @@ var yyTok1 = [...]int8{
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	27, 28, 3, 3, 24, 3, 25, 3, 3, 3,
-	3, 3, 3, 3, 3, 3, 3, 3, 21, 3,
-	3, 26, 3, 3, 3, 3, 3, 3, 3, 3,
+	29, 30, 3, 3, 26, 3, 27, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 23, 3,
+	3, 28, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	3, 3, 3, 22, 3, 23,
+	3, 3, 3, 24, 3, 25,
 }
 
 var yyTok2 = [...]int8{
 	2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-	12, 13, 14, 15, 16, 17, 18, 19, 20,
+	12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+	22,
 }
 
 var yyTok3 = [...]int8{
@@ -555,145 +566,179 @@ yydefault:
 
 	case 1:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line internal/parser/grammar.y:33
+//line internal/parser/grammar.y:35
 		{
 			yylex.(*Lexer).GeneratedCode.WriteString(yyDollar[1].str + yyDollar[2].str + "\n")
 		}
 	case 2:
 		yyDollar = yyS[yypt-5 : yypt+1]
-//line internal/parser/grammar.y:37
+//line internal/parser/grammar.y:39
 		{
 			yyVAL.str = ""
 		}
 	case 3:
 		yyDollar = yyS[yypt-7 : yypt+1]
-//line internal/parser/grammar.y:40
+//line internal/parser/grammar.y:42
 		{
 			yyVAL.str = fmt.Sprintf("%s = 0\n", yyDollar[6].str)
 		}
 	case 4:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line internal/parser/grammar.y:46
+//line internal/parser/grammar.y:48
 		{
 			yyVAL.str = yyDollar[1].str + yyDollar[2].str
 		}
 	case 5:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:47
+//line internal/parser/grammar.y:49
 		{
 			yyVAL.str = yyDollar[1].str
 		}
 	case 6:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line internal/parser/grammar.y:50
+//line internal/parser/grammar.y:52
 		{
 			yyVAL.str = yyDollar[1].str + yyDollar[3].str
 		}
 	case 7:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line internal/parser/grammar.y:51
+//line internal/parser/grammar.y:53
 		{
 			yyVAL.str = yyDollar[1].str
 		}
 	case 8:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:53
+//line internal/parser/grammar.y:55
 		{
 			yyVAL.str = yyDollar[1].str + "\n"
 		}
 	case 9:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:56
+//line internal/parser/grammar.y:58
 		{
 			yyVAL.str = yyDollar[1].str + "\n"
 		}
 	case 10:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:59
+//line internal/parser/grammar.y:61
 		{
 			yyVAL.str = yyDollar[1].str + "\n"
 		}
 	case 11:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line internal/parser/grammar.y:63
+//line internal/parser/grammar.y:65
 		{
 			yyVAL.str = fmt.Sprintf("%s = %s", yyDollar[2].str, yyDollar[4].str)
 		}
 	case 12:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line internal/parser/grammar.y:67
+//line internal/parser/grammar.y:69
 		{
 			yyVAL.str = fmt.Sprintf("%s = %s", yyDollar[2].str, yyDollar[4].str)
 		}
 	case 13:
 		yyDollar = yyS[yypt-5 : yypt+1]
-//line internal/parser/grammar.y:71
+//line internal/parser/grammar.y:73
 		{
 			yyVAL.str = fmt.Sprintf("if %s:\n%s", yyDollar[2].str, indent(yyDollar[4].str))
 		}
 	case 14:
 		yyDollar = yyS[yypt-7 : yypt+1]
-//line internal/parser/grammar.y:76
+//line internal/parser/grammar.y:78
 		{
 			yyVAL.str = fmt.Sprintf("if %s:\n%s\nelse:\n%s", yyDollar[2].str, indent(yyDollar[4].str), indent(yyDollar[6].str))
 		}
 	case 15:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line internal/parser/grammar.y:80
+//line internal/parser/grammar.y:82
 		{
 			yyVAL.str = fmt.Sprintf("%s %s %s", yyDollar[1].str, yyDollar[2].str, yyDollar[3].str)
 		}
 	case 16:
 		yyDollar = yyS[yypt-5 : yypt+1]
-//line internal/parser/grammar.y:84
+//line internal/parser/grammar.y:86
 		{
 			yyVAL.str = fmt.Sprintf("%s %s %s and %s", yyDollar[1].str, yyDollar[2].str, yyDollar[3].str, yyDollar[5].str)
 		}
 	case 20:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:91
+//line internal/parser/grammar.y:93
 		{
 			yyVAL.str = strconv.Itoa(yyDollar[1].num)
 		}
 	case 21:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:94
+//line internal/parser/grammar.y:96
 		{
 			yyVAL.str = yyDollar[1].str
 		}
 	case 24:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line internal/parser/grammar.y:101
+//line internal/parser/grammar.y:103
 		{
 			yyVAL.str = fmt.Sprintf("%s('%s')", yyDollar[1].str, yyDollar[3].str)
 		}
 	case 25:
 		yyDollar = yyS[yypt-6 : yypt+1]
-//line internal/parser/grammar.y:104
+//line internal/parser/grammar.y:106
 		{
 			yyVAL.str = fmt.Sprintf("alert('%s', '%s')", yyDollar[6].str, yyDollar[4].str)
 		}
 	case 26:
-		yyDollar = yyS[yypt-8 : yypt+1]
-//line internal/parser/grammar.y:108
+		yyDollar = yyS[yypt-9 : yypt+1]
+//line internal/parser/grammar.y:109
 		{
-			yyVAL.str = fmt.Sprintf("alert('%s', '%s', '%s')", yyDollar[6].str, yyDollar[4].str, yyDollar[8].str)
+			lista := strings.Split(yyDollar[9].str, ",")
+			var sb strings.Builder
+			for _, val := range lista {
+				sb.WriteString(fmt.Sprintf("alert('%s', '%s')\n", val, yyDollar[4].str))
+			}
+			yyVAL.str = sb.String()
 		}
 	case 27:
-		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:112
+		yyDollar = yyS[yypt-11 : yypt+1]
+//line internal/parser/grammar.y:117
 		{
-			yyVAL.str = "ligar"
+			lista := strings.Split(yyDollar[11].str, ",")
+			var sb strings.Builder
+			for _, dev := range lista {
+				sb.WriteString(fmt.Sprintf("alert('%s', '%s', '%s')\n", dev, yyDollar[4].str, yyDollar[6].str))
+			}
+			yyVAL.str = sb.String()
 		}
 	case 28:
-		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:115
+		yyDollar = yyS[yypt-3 : yypt+1]
+//line internal/parser/grammar.y:126
 		{
-			yyVAL.str = "desligar"
+			yyVAL.str = yyDollar[1].str + "," + yyDollar[3].str
 		}
 	case 29:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line internal/parser/grammar.y:118
+//line internal/parser/grammar.y:127
+		{
+			yyVAL.str = yyDollar[1].str
+		}
+	case 30:
+		yyDollar = yyS[yypt-8 : yypt+1]
+//line internal/parser/grammar.y:129
+		{
+			yyVAL.str = fmt.Sprintf("alert('%s', '%s', '%s')", yyDollar[6].str, yyDollar[4].str, yyDollar[8].str)
+		}
+	case 31:
+		yyDollar = yyS[yypt-1 : yypt+1]
+//line internal/parser/grammar.y:133
+		{
+			yyVAL.str = "ligar"
+		}
+	case 32:
+		yyDollar = yyS[yypt-1 : yypt+1]
+//line internal/parser/grammar.y:136
+		{
+			yyVAL.str = "desligar"
+		}
+	case 33:
+		yyDollar = yyS[yypt-1 : yypt+1]
+//line internal/parser/grammar.y:139
 		{
 			yyVAL.str = "verificar"
 		}

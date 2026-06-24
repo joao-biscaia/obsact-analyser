@@ -1,11 +1,77 @@
-dispositivo : { higrometro , umidade }
-dispositivo : { umidificador , potenciaUmidificador }
+dispositivo : { Termometro , temperatura }
+dispositivo : { Higrometro , umidade }
+dispositivo : { Luximetro , luminosidade }
+dispositivo : { Barometro , pressao }
+dispositivo : { ventilador , potVentilador }
+dispositivo : { lampada , potLampada }
+dispositivo : { umidificador , potUmidificador }
+dispositivo : { aquecedor , potAquecedor }
+dispositivo : { alarme }
 dispositivo : { Monitor }
-set potenciaUmidificador = 100.
-se umidade < 40 entao
-  enviar alerta ("Ar seco detectado") Monitor.
-  se verificar (umidificador) == 0 entao
-    ligar (umidificador).
+dispositivo : { celular }
+dispositivo : { Central }
+set temperatura = 25.
+set umidade = 60.
+set luminosidade = 300.
+set pressao = 1013.
+set potVentilador = 0.
+set potLampada = 0.
+set potUmidificador = 0.
+set potAquecedor = 0.
+se temperatura > 30 entao
+  ligar (ventilador).
+  set potVentilador = 100.
+  se temperatura > 40 entao
+    enviar alerta ("Temperatura critica") para todos: Monitor , celular , Central.
+    ligar (alarme).
+  senao
+    enviar alerta ("Temperatura alta" , temperatura) Monitor.
   fim.
-  set potenciaUmidificador = 100.
+senao
+  se temperatura < 15 entao
+    ligar (aquecedor).
+    set potAquecedor = 100.
+  fim.
 fim.
+se umidade < 40 entao
+  ligar (umidificador).
+  set potUmidificador = 80.
+  se verificar (umidificador) == 0 entao
+    enviar alerta ("Umidificador falhou") para todos: Monitor , celular.
+  fim.
+senao
+  se umidade > 70 entao
+    enviar alerta ("Umidade muito alta" , umidade) Central.
+  fim.
+fim.
+se luminosidade < 100 entao
+  ligar (lampada).
+  set potLampada = 100.
+senao
+  desligar (lampada).
+fim.
+se temperatura > 30 && umidade > 70 entao
+  enviar alerta ("Calor e umidade altos") para todos: Monitor , celular , Central , alarme.
+fim.
+se temperatura < 20 && umidade < 30 && luminosidade < 50 entao
+  ligar (aquecedor).
+  ligar (umidificador).
+  ligar (lampada).
+fim.
+se pressao < 1000 entao
+  enviar alerta ("Pressao baixa, tempestade" , pressao) para todos: Monitor , Central.
+  se temperatura > 25 entao
+    se umidade > 60 entao
+      enviar alerta ("Risco de chuva forte") Central.
+    fim.
+  fim.
+fim.
+se verificar (ventilador) == 1 entao
+  set estadoVent = verificar (ventilador).
+  se estadoVent == 1 entao
+    desligar (ventilador).
+  fim.
+fim.
+enviar alerta ("Sistema verificado") para todos: Monitor , celular , Central.
+desligar (alarme).
+ligar (Monitor).

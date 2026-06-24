@@ -18,13 +18,15 @@ import(
 %token DISPOSITIVO
 %token <num> NUM
 %token <str> MSG
+%token PARA
+%token TODOS
 %token <str> IDENT
 %token <str> BOOL
 %token <str> OPLOGIC
 %token SET IF ELSE ENDIF THEN AND ALERT SEND
 %token LIGAR DESLIGAR VERIFICAR
 %type <str> ACTION
-%type <str> CMD CMDS ACT ATTRIB OBSACT ACTEXECUTE ACTALERT OBS VAR EXPR DEVICE DEVICES
+%type <str> CMD CMDS ACT ATTRIB OBSACT ACTEXECUTE ACTALERT OBS VAR EXPR DEVICE DEVICES LISTA
 %nonassoc THEN
 %nonassoc ELSE
 %%
@@ -104,6 +106,25 @@ ACTEXECUTE:
 ACTALERT: SEND ALERT '(' MSG ')' IDENT{
 	$$ = fmt.Sprintf("alert('%s', '%s')", $6, $4)
 }
+| SEND ALERT '(' MSG ')' PARA TODOS ':' LISTA{
+	lista := strings.Split($9, ",")
+	var sb strings.Builder
+	for _, val := range lista{
+		sb.WriteString(fmt.Sprintf("alert('%s', '%s')\n", val, $4))
+	}
+	$$ = sb.String()
+}
+|SEND ALERT '(' MSG ',' IDENT ')' PARA TODOS ':' LISTA {
+         lista := strings.Split($11, ",")
+         var sb strings.Builder
+         for _, dev := range lista {
+             sb.WriteString(fmt.Sprintf("alert('%s', '%s', '%s')\n", dev, $4, $6))
+         }
+         $$ = sb.String()
+     }
+LISTA:
+	IDENT ',' LISTA {$$ = $1 + "," + $3}
+	| IDENT {$$ = $1}
 ACTALERT:
 	SEND ALERT '(' MSG ',' IDENT ')' IDENT{
 		$$ = fmt.Sprintf("alert('%s', '%s', '%s')", $6, $4, $8)
@@ -147,7 +168,6 @@ func (l * Lexer) Lex(lval *yySymType) int{
 	if !ok{
 		return 0
 	}
-
 	switch t.typ {
             case NUM:
                 n, _ := strconv.Atoi(t.val)

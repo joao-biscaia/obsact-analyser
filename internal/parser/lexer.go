@@ -22,6 +22,8 @@ var itemMap = map[string]int{
 	"True":        BOOL,
 	"False":       BOOL,
 	"fim":         ENDIF,
+	"para":        PARA,
+	"todos":       TODOS,
 }
 
 const eof = -1
